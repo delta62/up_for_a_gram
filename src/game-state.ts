@@ -154,6 +154,38 @@ let findSelectionRight = (grid: Grid, selection: CellRef): CellRef => {
   return selection
 }
 
+let emitCellUpdate = async (
+  socket: unknown,
+  selection: CellRef,
+  value: string
+) => {
+  value = value.toUpperCase()
+  let cell = selection
+  let color = 'hsl(83,40%,69%)'
+  let pencil = false
+  let id = USER_ID
+  let timestamp = {
+    '.sv': 'timestamp',
+  }
+
+  let payload = {
+    event: {
+      timestamp,
+      type: 'updateCell',
+      params: {
+        cell,
+        value,
+        color,
+        pencil,
+        id,
+      },
+    },
+    gid: GAME_ID,
+  }
+
+  emit(socket, 'game_event', payload)
+}
+
 export let updateGameInput = (socket: unknown, game: Game, key: Key): Game => {
   let selection: CellRef
 
@@ -182,33 +214,11 @@ export let updateGameInput = (socket: unknown, game: Game, key: Key): Game => {
         ...game,
         selection,
       }
+    case 'delete':
+      emitCellUpdate(socket, game.selection, '')
+      return game
     default:
-      let value = key.key.toUpperCase()
-      let cell = game.selection
-      let color = 'hsl(83,40%,69%)'
-      let pencil = false
-      let id = USER_ID
-      let timestamp = {
-        '.sv': 'timestamp',
-      }
-
-      let payload = {
-        event: {
-          timestamp,
-          type: 'updateCell',
-          params: {
-            cell,
-            value,
-            color,
-            pencil,
-            id,
-          },
-        },
-        gid: GAME_ID,
-      }
-
-      emit(socket, 'game_event', payload)
-
+      emitCellUpdate(socket, game.selection, key.key)
       return game
   }
 }
