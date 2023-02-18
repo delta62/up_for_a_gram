@@ -4,8 +4,7 @@ import { Game, Event, updateGame } from "./game-state";
 
 const SOCKET_HOST = "https://api.foracross.com";
 const USER_ID = "84c2e26";
-// const GAME_ID = "2881939-unt";
-const GAME_ID = "2896394-dimp";
+const GAME_ID = "2896420-skob";
 
 let emit = <T>(socket: unknown, ...args: any[]): Promise<T> => {
   return new Promise((resolve) => {
