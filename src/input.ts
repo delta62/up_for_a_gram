@@ -7,8 +7,8 @@ export interface InputKey {
 export type Key = 'up' | 'down' | 'left' | 'right' | InputKey
 export type KeyPressHandler = (key: Key) => void
 
-const DOWN_ARROW = '\u001b\u005b\u0041'
-const UP_ARROW = '\u001b\u005b\u0042'
+const UP_ARROW = '\u001b\u005b\u0041'
+const DOWN_ARROW = '\u001b\u005b\u0042'
 const RIGHT_ARROW = '\u001b\u005b\u0043'
 const LEFT_ARROW = '\u001b\u005b\u0044'
 

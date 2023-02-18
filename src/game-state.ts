@@ -116,6 +116,8 @@ let findSelectionDown = (grid: Grid, selection: CellRef): CellRef => {
   let pointer = selection
   let height = grid.length
 
+  console.log('find down', selection, pointer)
+
   while (pointer.r < height - 1) {
     pointer = { r: pointer.r + 1, c: pointer.c }
     if (selectable(grid, pointer)) {

@@ -1,4 +1,5 @@
 import { CellRef, Game } from './game-state'
+import { yellow } from 'chalk'
 
 let render = (game: Game) => {
   process.stdout.write('\u001B[2J\u001B[0;0f')
@@ -23,11 +24,16 @@ let render = (game: Game) => {
     }
 
     for (let c in row) {
+      let selected = game.selection.r === r && game.selection.c === parseInt(c)
       let cell = row[c]
       if (cell.black) {
         output.push('█')
       } else {
-        output.push(cell.value || ' ')
+        if (selected) {
+          output.push(yellow.underline(cell.value) || ' ')
+        } else {
+          output.push(cell.value || ' ')
+        }
       }
 
       selected = game.selection.r === r && game.selection.c === parseInt(c)
