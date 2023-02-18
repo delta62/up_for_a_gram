@@ -14,14 +14,7 @@ let render = (game: Game) => {
 
   for (let r = 0; r < height; r++) {
     let row = game.grid[r]
-    let selected = game.selection.r === r && game.selection.c === 0
-
-    let output = []
-    if (selected) {
-      output.push('┃')
-    } else {
-      output.push('│')
-    }
+    let output = ['│']
 
     for (let c in row) {
       let selected = game.selection.r === r && game.selection.c === parseInt(c)
@@ -36,12 +29,7 @@ let render = (game: Game) => {
         }
       }
 
-      selected = game.selection.r === r && game.selection.c === parseInt(c)
-      if (selected) {
-        output.push('┃')
-      } else {
-        output.push('│')
-      }
+      output.push('│')
     }
 
     console.log(output.join(' '))
@@ -55,113 +43,48 @@ let render = (game: Game) => {
 }
 
 let printHead = (width: number, selection: CellRef) => {
-  let selected = selection.c === 0 && selection.r === 0
-  let chars = []
-
-  if (selected) {
-    chars.push('┏')
-  } else {
-    chars.push('┌')
-  }
+  let chars = ['┌']
 
   let midChars = Array.from({ length: width }, (_, i) => {
-    selected = selection.r === 0 && selection.c === i
-    if (selected) {
-      if (i === width - 1) {
-        return '━━━'
-      } else {
-        return '━━━┳'
-      }
+    if (i === width - 1) {
+      return '───'
     } else {
-      if (i === width - 1) {
-        return '───'
-      } else {
-        return '───┬'
-      }
+      return '───┬'
     }
   })
 
-  selected = selection.r === 0 && selection.c === width
-  if (selected) {
-    chars = chars.concat(midChars).concat('┓')
-  } else {
-    chars = chars.concat(midChars).concat('┐')
-  }
+  chars = chars.concat(midChars).concat('┐')
 
   console.log(chars.join(''))
 }
 
 let printTail = (width: number, height: number, selection: CellRef) => {
-  let selected = selection.c === 0 && selection.r === height
-  let chars = []
-
-  if (selected) {
-    chars.push('┗')
-  } else {
-    chars.push('└')
-  }
+  let chars = ['└']
 
   let midChars = Array.from({ length: width }, (_, i) => {
-    let selected = selection.r === height && selection.c === i
-    if (selected) {
-      if (i === width - 1) {
-        return '━━━'
-      } else {
-        return '━━━┻'
-      }
+    if (i === width - 1) {
+      return '───'
     } else {
-      if (i === width - 1) {
-        return '───'
-      } else {
-        return '───┴'
-      }
+      return '───┴'
     }
   })
 
-  selected = selection.r === height && selection.c === width
-  if (selected) {
-    chars = chars.concat(midChars).concat('┛')
-  } else {
-    chars = chars.concat(midChars).concat('┘')
-  }
+  chars = chars.concat(midChars).concat('┘')
 
   console.log(chars.join(''))
 }
 
 let printDivider = (width: number, r: number, selection: CellRef) => {
-  let selected = selection.r === r && selection.c === 0
-
-  let chars = []
-
-  if (selected) {
-    chars.push('┣')
-  } else {
-    chars.push('├')
-  }
-
+  let chars = ['├']
   let midChars = Array.from({ length: width }, (_, i) => {
-    selected = selection.r === r && i === selection.c
-    if (selected) {
-      if (i === width - 1) {
-        return '━━━'
-      } else {
-        return '━━━╋'
-      }
+    if (i === width - 1) {
+      return '───'
     } else {
-      if (i === width - 1) {
-        return '───'
-      } else {
-        return '───┼'
-      }
+      return '───┼'
     }
   })
 
-  selected = selection.r === r && selection.c === width - 1
-  if (selected) {
-    chars = chars.concat(midChars).concat('┫')
-  } else {
-    chars = chars.concat(midChars).concat('┤')
-  }
+  chars = chars.concat(midChars).concat('┤')
 
   console.log(chars.join(''))
 }
