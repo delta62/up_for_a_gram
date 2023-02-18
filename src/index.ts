@@ -4,10 +4,10 @@ import { Game, Event, updateGame, updateGameInput } from './game-state'
 import { getKey } from './input'
 
 const SOCKET_HOST = 'https://api.foracross.com'
-const USER_ID = '84c2e26'
-const GAME_ID = '2896420-skob'
+export const USER_ID = '84c2e26'
+export const GAME_ID = '2897785-joct'
 
-let emit = <T>(socket: unknown, ...args: any[]): Promise<T> => {
+export let emit = <T>(socket: unknown, ...args: any[]): Promise<T> => {
   return new Promise(resolve => {
     ;(socket as any).emit(...args, (data: T) => {
       resolve(data)
@@ -22,7 +22,7 @@ let main = async () => {
   let game: Game = null as any
 
   getKey(key => {
-    game = updateGameInput(game, key)
+    game = updateGameInput(socket, game, key)
     render(game)
   })
 

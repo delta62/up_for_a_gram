@@ -12,7 +12,7 @@ const DOWN_ARROW = '\u001b\u005b\u0042'
 const RIGHT_ARROW = '\u001b\u005b\u0043'
 const LEFT_ARROW = '\u001b\u005b\u0044'
 
-export let getKey = async (cb: KeyPressHandler): Promise<Key> => {
+export let getKey = async (cb: KeyPressHandler): Promise<void> => {
   stdin.setRawMode(true)
   stdin.resume()
   stdin.setEncoding('utf-8')
@@ -45,6 +45,4 @@ export let getKey = async (cb: KeyPressHandler): Promise<Key> => {
       process.exit()
     }
   })
-
-  return 'up'
 }

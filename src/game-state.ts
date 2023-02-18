@@ -1,3 +1,4 @@
+import { GAME_ID, USER_ID, emit } from './index'
 import { Key } from './input'
 
 export interface GameInfo {
@@ -116,8 +117,6 @@ let findSelectionDown = (grid: Grid, selection: CellRef): CellRef => {
   let pointer = selection
   let height = grid.length
 
-  console.log('find down', selection, pointer)
-
   while (pointer.r < height - 1) {
     pointer = { r: pointer.r + 1, c: pointer.c }
     if (selectable(grid, pointer)) {
@@ -155,7 +154,7 @@ let findSelectionRight = (grid: Grid, selection: CellRef): CellRef => {
   return selection
 }
 
-export let updateGameInput = (game: Game, key: Key): Game => {
+export let updateGameInput = (socket: unknown, game: Game, key: Key): Game => {
   let selection: CellRef
 
   switch (key) {
@@ -184,6 +183,32 @@ export let updateGameInput = (game: Game, key: Key): Game => {
         selection,
       }
     default:
+      let value = key.key.toUpperCase()
+      let cell = game.selection
+      let color = 'hsl(83,40%,69%)'
+      let pencil = false
+      let id = USER_ID
+      let timestamp = {
+        '.sv': 'timestamp',
+      }
+
+      let payload = {
+        event: {
+          timestamp,
+          type: 'updateCell',
+          params: {
+            cell,
+            value,
+            color,
+            pencil,
+            id,
+          },
+        },
+        gid: GAME_ID,
+      }
+
+      emit(socket, 'game_event', payload)
+
       return game
   }
 }
