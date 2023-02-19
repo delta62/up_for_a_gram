@@ -1,176 +1,123 @@
-import { CellRef, Game } from './game-state'
-import { yellow } from 'chalk'
+import { Game } from './game-state'
+import { yellow, green } from 'chalk'
+import { clear, hideCursor } from './term'
+import { Block, block, render as uiRender, writeLine } from './ui'
 
 let render = (game: Game) => {
-  process.stdout.write('\u001B[2J\u001B[0;0f')
+  clear()
+  hideCursor()
 
+  let header = block({ valign: 'start', halign: 'middle' })
+  writeLine(game.info.title.trim(), header)
+  writeLine(game.info.author.trim(), header)
+  uiRender(header)
+
+  let mode = game.mode
+  let { r, c } = game.selection
+  let clue = game.grid[r][c].parents?.[mode]
+  let clueText = clue ? game.clues[mode][clue]! : ''
+
+  if (clueText) {
+    let displayText = `${clue} ${mode.toUpperCase()}: ${clueText}`
+    let footer = block({ valign: 'end', halign: 'middle' })
+    writeLine(displayText, footer)
+    uiRender(footer)
+  }
+
+  let puzzle = block({ valign: 'middle', halign: 'middle' })
+  renderPuzzle(game, puzzle)
+  uiRender(puzzle)
+}
+
+let renderPuzzle = (game: Game, block: Block) => {
   let width = game.grid[0].length
   let height = game.grid.length
 
-  console.log(center(game.info.title, width))
-  console.log(center(game.info.author, width))
-
-  printHead(width, game.selection)
+  printHead(width, block)
 
   for (let r = 0; r < height; r++) {
     let row = game.grid[r]
-    let selected = game.selection.r === r && game.selection.c === 0
-
-    let output = []
-    if (selected) {
-      output.push('┃')
-    } else {
-      output.push('│')
-    }
+    let output = ['│']
 
     for (let c in row) {
       let selected = game.selection.r === r && game.selection.c === parseInt(c)
       let cell = row[c]
       if (cell.black) {
-        output.push('█')
+        output.push('███')
       } else {
         if (selected) {
-          output.push(yellow.underline(cell.value) || ' ')
+          output.push(yellow.underline(` ${cell.value} ` || '   '))
         } else {
-          output.push(cell.value || ' ')
+          output.push(` ${cell.value} ` || '   ')
+
+          let someoneElseSelected = Object.values(game.players).find(
+            p => r === p.position.r && parseInt(c) === p.position.c
+          )
+
+          if (someoneElseSelected) {
+            output.push(`\b${green('*')}`)
+          }
         }
       }
 
-      selected = game.selection.r === r && game.selection.c === parseInt(c)
-      if (selected) {
-        output.push('┃')
-      } else {
-        output.push('│')
-      }
+      output.push('│')
     }
 
-    console.log(output.join(' '))
+    writeLine(output.join(''), block)
 
     if (r !== height - 1) {
-      printDivider(width, r, game.selection)
+      printDivider(width, block)
     }
   }
 
-  printTail(width, height, game.selection)
+  printTail(width, block)
 }
 
-let printHead = (width: number, selection: CellRef) => {
-  let selected = selection.c === 0 && selection.r === 0
-  let chars = []
-
-  if (selected) {
-    chars.push('┏')
-  } else {
-    chars.push('┌')
-  }
+let printHead = (width: number, block: Block) => {
+  let chars = ['┌']
 
   let midChars = Array.from({ length: width }, (_, i) => {
-    selected = selection.r === 0 && selection.c === i
-    if (selected) {
-      if (i === width - 1) {
-        return '━━━'
-      } else {
-        return '━━━┳'
-      }
+    if (i === width - 1) {
+      return '───'
     } else {
-      if (i === width - 1) {
-        return '───'
-      } else {
-        return '───┬'
-      }
+      return '───┬'
     }
   })
 
-  selected = selection.r === 0 && selection.c === width
-  if (selected) {
-    chars = chars.concat(midChars).concat('┓')
-  } else {
-    chars = chars.concat(midChars).concat('┐')
-  }
+  chars = chars.concat(midChars).concat('┐')
 
-  console.log(chars.join(''))
+  writeLine(chars.join(''), block)
 }
 
-let printTail = (width: number, height: number, selection: CellRef) => {
-  let selected = selection.c === 0 && selection.r === height
-  let chars = []
-
-  if (selected) {
-    chars.push('┗')
-  } else {
-    chars.push('└')
-  }
+let printTail = (width: number, block: Block) => {
+  let chars = ['└']
 
   let midChars = Array.from({ length: width }, (_, i) => {
-    let selected = selection.r === height && selection.c === i
-    if (selected) {
-      if (i === width - 1) {
-        return '━━━'
-      } else {
-        return '━━━┻'
-      }
+    if (i === width - 1) {
+      return '───'
     } else {
-      if (i === width - 1) {
-        return '───'
-      } else {
-        return '───┴'
-      }
+      return '───┴'
     }
   })
 
-  selected = selection.r === height && selection.c === width
-  if (selected) {
-    chars = chars.concat(midChars).concat('┛')
-  } else {
-    chars = chars.concat(midChars).concat('┘')
-  }
+  chars = chars.concat(midChars).concat('┘')
 
-  console.log(chars.join(''))
+  writeLine(chars.join(''), block)
 }
 
-let printDivider = (width: number, r: number, selection: CellRef) => {
-  let selected = selection.r === r && selection.c === 0
-
-  let chars = []
-
-  if (selected) {
-    chars.push('┣')
-  } else {
-    chars.push('├')
-  }
-
+let printDivider = (width: number, block: Block) => {
+  let chars = ['├']
   let midChars = Array.from({ length: width }, (_, i) => {
-    selected = selection.r === r && i === selection.c
-    if (selected) {
-      if (i === width - 1) {
-        return '━━━'
-      } else {
-        return '━━━╋'
-      }
+    if (i === width - 1) {
+      return '───'
     } else {
-      if (i === width - 1) {
-        return '───'
-      } else {
-        return '───┼'
-      }
+      return '───┼'
     }
   })
 
-  selected = selection.r === r && selection.c === width - 1
-  if (selected) {
-    chars = chars.concat(midChars).concat('┫')
-  } else {
-    chars = chars.concat(midChars).concat('┤')
-  }
+  chars = chars.concat(midChars).concat('┤')
 
-  console.log(chars.join(''))
-}
-
-let center = (text: string, width: number): string => {
-  let gridWidth = width * 4 - 1
-  let textWidth = text.length
-  let padWidth = (gridWidth - textWidth) / 2
-  return text.padStart(padWidth + textWidth)
+  writeLine(chars.join(''), block)
 }
 
 export default render
