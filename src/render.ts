@@ -48,7 +48,7 @@ let renderPuzzle = (game: Game, block: Block) => {
         if (selected) {
           output.push(` ${yellow.underline(cell.value || ' ')} `)
         } else {
-          output.push(` ${cell.value} ` || '   ')
+          output.push(` ${cell.value || ' '} `)
 
           let someoneElseSelected = Object.values(game.players).find(
             p => r === p.position.r && parseInt(c) === p.position.c

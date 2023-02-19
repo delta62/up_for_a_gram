@@ -5,7 +5,6 @@ import { getKey } from './input'
 
 const SOCKET_HOST = 'https://api.foracross.com'
 export const USER_ID = '84c2e26'
-export const GAME_ID = '2897785-joct'
 
 export let emit = <T>(socket: unknown, ...args: any[]): Promise<T> => {
   return new Promise(resolve => {
@@ -15,24 +14,24 @@ export let emit = <T>(socket: unknown, ...args: any[]): Promise<T> => {
   })
 }
 
-let main = async () => {
+let main = async (gameId: string) => {
   let upgrade = false
   let transports = ['websocket']
   let socket = io(SOCKET_HOST, { upgrade, transports })
   let game: Game = null as any
 
   getKey(key => {
-    game = updateGameInput(socket, game, key)
+    game = updateGameInput(gameId, socket, game, key)
     render(game)
   })
 
   socket.on('connect', async () => {
     console.log('ws connected')
 
-    await emit(socket, 'join_game', GAME_ID)
-    console.log(`joined game ${GAME_ID}`)
+    await emit(socket, 'join_game', gameId)
+    console.log(`joined game ${gameId}`)
 
-    let result = await emit<Event[]>(socket, 'sync_all_game_events', GAME_ID)
+    let result = await emit<Event[]>(socket, 'sync_all_game_events', gameId)
     for (let event of result) {
       game = updateGame(game!, event)
     }
@@ -96,6 +95,12 @@ let main = async () => {
   socket.connect()
 }
 
-main()
+let gameId = process.argv.at(2)
+
+if (!gameId) {
+  throw new Error(`usage: ${process.argv[1]} <game_id>`)
+}
+
+main(gameId)
   .catch(err => console.error(err))
   .then(() => console.log('done'))

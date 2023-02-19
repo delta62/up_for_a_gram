@@ -1,4 +1,4 @@
-import { GAME_ID, USER_ID, emit } from './index'
+import { USER_ID, emit } from './index'
 import { Key } from './input'
 
 export interface GameInfo {
@@ -252,6 +252,7 @@ let findSelectionRight = (grid: Grid, selection: CellRef): CellRef => {
 }
 
 let emitCellUpdate = async (
+  gameId: string,
   socket: unknown,
   selection: CellRef,
   value: string
@@ -277,13 +278,18 @@ let emitCellUpdate = async (
         id,
       },
     },
-    gid: GAME_ID,
+    gid: gameId,
   }
 
   emit(socket, 'game_event', payload)
 }
 
-export let updateGameInput = (socket: unknown, game: Game, key: Key): Game => {
+export let updateGameInput = (
+  gameId: string,
+  socket: unknown,
+  game: Game,
+  key: Key
+): Game => {
   let selection: CellRef
 
   switch (key) {
@@ -312,7 +318,7 @@ export let updateGameInput = (socket: unknown, game: Game, key: Key): Game => {
         selection,
       }
     case 'delete':
-      emitCellUpdate(socket, game.selection, '')
+      emitCellUpdate(gameId, socket, game.selection, '')
       return game
     case 'rotate':
       let mode: InputMode = game.mode === 'across' ? 'down' : 'across'
@@ -321,7 +327,7 @@ export let updateGameInput = (socket: unknown, game: Game, key: Key): Game => {
         mode,
       }
     default:
-      emitCellUpdate(socket, game.selection, key.key)
+      emitCellUpdate(gameId, socket, game.selection, key.key)
       return game
   }
 }
