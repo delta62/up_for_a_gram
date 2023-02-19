@@ -1,5 +1,5 @@
 import { Game } from './game-state'
-import { yellow } from 'chalk'
+import { yellow, green } from 'chalk'
 import { clear, hideCursor } from './term'
 import { Block, block, render as uiRender, writeLine } from './ui'
 
@@ -12,9 +12,17 @@ let render = (game: Game) => {
   writeLine(game.info.author.trim(), header)
   uiRender(header)
 
-  let footer = block({ valign: 'end', halign: 'middle' })
-  writeLine('this is the footer', footer)
-  uiRender(footer)
+  let mode = game.mode
+  let { r, c } = game.selection
+  let clue = game.grid[r][c].parents?.[mode]
+  let clueText = clue ? game.clues[mode][clue]! : ''
+
+  if (clueText) {
+    let displayText = `${clue} ${mode.toUpperCase()}: ${clueText}`
+    let footer = block({ valign: 'end', halign: 'middle' })
+    writeLine(displayText, footer)
+    uiRender(footer)
+  }
 
   let puzzle = block({ valign: 'middle', halign: 'middle' })
   renderPuzzle(game, puzzle)
@@ -35,19 +43,27 @@ let renderPuzzle = (game: Game, block: Block) => {
       let selected = game.selection.r === r && game.selection.c === parseInt(c)
       let cell = row[c]
       if (cell.black) {
-        output.push('█')
+        output.push('███')
       } else {
         if (selected) {
-          output.push(yellow.underline(cell.value) || ' ')
+          output.push(yellow.underline(` ${cell.value} ` || '   '))
         } else {
-          output.push(cell.value || ' ')
+          output.push(` ${cell.value} ` || '   ')
+
+          let someoneElseSelected = Object.values(game.players).find(
+            p => r === p.position.r && parseInt(c) === p.position.c
+          )
+
+          if (someoneElseSelected) {
+            output.push(`\b${green('*')}`)
+          }
         }
       }
 
       output.push('│')
     }
 
-    writeLine(output.join(' '), block)
+    writeLine(output.join(''), block)
 
     if (r !== height - 1) {
       printDivider(width, block)

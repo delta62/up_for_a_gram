@@ -5,7 +5,14 @@ export interface InputKey {
   key: string
 }
 
-export type Key = 'delete' | 'up' | 'down' | 'left' | 'right' | InputKey
+export type Key =
+  | 'rotate'
+  | 'delete'
+  | 'up'
+  | 'down'
+  | 'left'
+  | 'right'
+  | InputKey
 export type KeyPressHandler = (key: Key) => void
 
 const UP_ARROW = '\u001b\u005b\u0041'
@@ -15,7 +22,7 @@ const LEFT_ARROW = '\u001b\u005b\u0044'
 const BACKSPACE_KEY = '\u007f'
 const DELETE_KEY = '\u001b\u005b\u0033\u007e'
 const TAB_KEY = ''
-const SPACE_KEY = '\u0009'
+const SPACE_KEY = '\u0020'
 const SHIFT_TAB_KEY = '\u001b\u005b\u005a'
 
 export let getKey = async (cb: KeyPressHandler): Promise<void> => {
@@ -42,6 +49,9 @@ export let getKey = async (cb: KeyPressHandler): Promise<void> => {
         break
       case RIGHT_ARROW:
         cb('right')
+        break
+      case SPACE_KEY:
+        cb('rotate')
         break
       default:
         if (/[a-z0-9]$/.test(key)) {
