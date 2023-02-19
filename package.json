@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "chalk": "^4.0.0",
+    "printable-characters": "^1.0.42",
     "socket.io-client": "^2.0.0"
   },
   "devDependencies": {

@@ -1,4 +1,5 @@
 import { stdin } from 'process'
+import { showCursor } from './term'
 
 export interface InputKey {
   key: string
@@ -18,9 +19,11 @@ const SPACE_KEY = '\u0009'
 const SHIFT_TAB_KEY = '\u001b\u005b\u005a'
 
 export let getKey = async (cb: KeyPressHandler): Promise<void> => {
-  stdin.setRawMode(true)
-  stdin.resume()
-  stdin.setEncoding('utf-8')
+  if (stdin.isTTY) {
+    stdin.setRawMode(true)
+    stdin.resume()
+    stdin.setEncoding('utf-8')
+  }
 
   stdin.on('data', (key: string) => {
     switch (key) {
@@ -51,6 +54,7 @@ export let getKey = async (cb: KeyPressHandler): Promise<void> => {
     }
 
     if (key === '\u0003') {
+      showCursor()
       process.exit()
     }
   })
