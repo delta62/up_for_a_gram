@@ -33,7 +33,7 @@ let renderPuzzle = (game: Game, block: Block) => {
   let width = game.grid[0].length
   let height = game.grid.length
 
-  printHead(width, block)
+  printHead(game, width, block)
 
   for (let r = 0; r < height; r++) {
     let row = game.grid[r]
@@ -46,7 +46,7 @@ let renderPuzzle = (game: Game, block: Block) => {
         output.push('███')
       } else {
         if (selected) {
-          output.push(yellow.underline(` ${cell.value} ` || '   '))
+          output.push(` ${yellow.underline(cell.value || ' ')} `)
         } else {
           output.push(` ${cell.value} ` || '   ')
 
@@ -66,21 +66,24 @@ let renderPuzzle = (game: Game, block: Block) => {
     writeLine(output.join(''), block)
 
     if (r !== height - 1) {
-      printDivider(width, block)
+      printDivider(game, width, r, block)
     }
   }
 
   printTail(width, block)
 }
 
-let printHead = (width: number, block: Block) => {
+let printHead = (game: Game, width: number, block: Block) => {
   let chars = ['┌']
 
   let midChars = Array.from({ length: width }, (_, i) => {
+    let num = game.grid[0][i].number
+    let cellNum = numberToSubscript(num, 3, '─')
+
     if (i === width - 1) {
-      return '───'
+      return cellNum
     } else {
-      return '───┬'
+      return `${cellNum}┬`
     }
   })
 
@@ -105,19 +108,44 @@ let printTail = (width: number, block: Block) => {
   writeLine(chars.join(''), block)
 }
 
-let printDivider = (width: number, block: Block) => {
+let printDivider = (game: Game, width: number, row: number, block: Block) => {
   let chars = ['├']
   let midChars = Array.from({ length: width }, (_, i) => {
+    let num = game.grid[row + 1][i].number
+
     if (i === width - 1) {
-      return '───'
+      return numberToSubscript(num, 3, '─')
     } else {
-      return '───┼'
+      return `${numberToSubscript(num, 3, '─')}┼`
     }
   })
 
   chars = chars.concat(midChars).concat('┤')
 
   writeLine(chars.join(''), block)
+}
+
+let numberToSubscript = (
+  n: number | null,
+  length: number,
+  pad: string
+): string => {
+  if (n == null) {
+    return Array.from<string>({ length }).fill(pad).join('')
+  }
+
+  let chars = []
+  let s = `${n}`
+
+  for (let i = 0; i < s.length; i++) {
+    chars.push(String.fromCharCode(s.charCodeAt(i) + 0x2050))
+  }
+
+  while (chars.length < length) {
+    chars.push(pad)
+  }
+
+  return chars.join('')
 }
 
 export default render

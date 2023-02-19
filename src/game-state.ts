@@ -127,7 +127,7 @@ export let updateGame = (game: Game, event: Event): Game => {
       return game
     case 'create':
       if (game !== null) {
-        throw new Error('creating a game from a non empty state')
+        console.warn('creating a game from a non empty state')
       }
 
       return {
