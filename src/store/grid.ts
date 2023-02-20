@@ -1,12 +1,17 @@
 import { createReducer } from '@reduxjs/toolkit'
-import { GridRow } from '../dfac-api'
-import { createGame, updateCell } from './actions'
+import { GridCell } from '../dfac-api'
+import { check, createGame, reveal, updateCell } from './actions'
 
-export type GridState = GridRow[]
+export interface Cell extends GridCell {
+  checked?: true
+  revealed?: true
+}
+
+export type GridState = Cell[][]
 
 const DEFAULT_STATE: GridState = []
 
-let grid = createReducer(DEFAULT_STATE, builder => {
+let grid = createReducer<GridState>(DEFAULT_STATE, builder => {
   builder
     .addCase(createGame, (_, action) => action.payload.game.grid)
     .addCase(updateCell, (state, action) => {
@@ -14,6 +19,16 @@ let grid = createReducer(DEFAULT_STATE, builder => {
       let { value } = action.payload
 
       state[r][c].value = value
+    })
+    .addCase(check, (state, action) => {
+      for (let { r, c } of action.payload.scope) {
+        state[r][c].checked = true
+      }
+    })
+    .addCase(reveal, (state, action) => {
+      for (let { r, c } of action.payload.scope) {
+        state[r][c].revealed = true
+      }
     })
 })
 

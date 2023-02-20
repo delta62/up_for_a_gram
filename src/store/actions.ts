@@ -30,6 +30,12 @@ export interface MoveCursor {
   cell: CellRef
 }
 
+export interface Check {
+  scope: CellRef[]
+}
+
+export type Reveal = Check
+
 export let createGame = createAction<CreateGame>('CREATE_GAME')
 export let updateCell = createAction<UpdateCell>('UPDATE_CELL')
 export let updatePlayerColor = createAction<UpdatePlayerColor>(
@@ -42,8 +48,5 @@ export let updatePlayerCursor = createAction<UpdatePlayerCursor>(
 )
 export let moveCursor = createAction<MoveCursor>('MOVE_CURSOR')
 export let switchMode = createAction('SWITCH_MODE')
-export let check = createAction('CHECK')
-
-type AppAction = CreateGame | UpdateCell
-
-export default AppAction
+export let check = createAction<Check>('CHECK')
+export let reveal = createAction<Reveal>('REVEAL')

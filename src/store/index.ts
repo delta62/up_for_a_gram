@@ -24,6 +24,7 @@ export {
   check,
   createGame,
   moveCursor,
+  reveal,
   switchMode,
   updateCell,
   updatePlayerName,

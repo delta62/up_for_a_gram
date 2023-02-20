@@ -5,8 +5,6 @@ import { connect } from './websocket'
 import store from './store'
 import { keyPressToAction, gameEventToAction } from './mappers'
 
-export const USER_ID = '84c2e26'
-
 let main = async (gameId: string) => {
   log.info('hello world')
 
@@ -39,9 +37,9 @@ let main = async (gameId: string) => {
 }
 
 let gameId = process.argv.at(2)
-
 if (!gameId) {
-  throw new Error(`usage: ${process.argv[1]} <game_id>`)
+  console.error(`usage: ${process.argv[1]} <game_id>`)
+  process.exit(1)
 }
 
 main(gameId).catch(err => console.error(err))

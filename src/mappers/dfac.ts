@@ -3,6 +3,7 @@ import { GameEvent } from '../dfac-api'
 import {
   check,
   createGame,
+  reveal,
   updateCell,
   updatePlayerColor,
   updatePlayerCursor,
@@ -34,8 +35,10 @@ export let gameEventToAction = (event: GameEvent) => {
       let name = event.params.displayName
       return updatePlayerName({ playerId, name })
     case 'check':
-      return check()
+      return check({ scope: event.params.scope })
+    case 'reveal':
+      return reveal({ scope: event.params.scope })
     default:
-      throw new Error('not implemented ' + event.type)
+      throw new Error('not implemented ' + (event as any).type)
   }
 }

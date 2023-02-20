@@ -45,7 +45,7 @@ export let moveLeft = select({
 
 export let moveRight = select({
   until: ({ c, width }) => c === width - 1,
-  increment: cell => ({ ...cell, c: cell.c - 1 }),
+  increment: cell => ({ ...cell, c: cell.c + 1 }),
 })
 
 export let findNextSelection = (
