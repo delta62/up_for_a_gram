@@ -26,6 +26,10 @@ export interface UpdatePlayerCursor {
   cell: CellRef
 }
 
+export interface MoveCursor {
+  cell: CellRef
+}
+
 export let createGame = createAction<CreateGame>('CREATE_GAME')
 export let updateCell = createAction<UpdateCell>('UPDATE_CELL')
 export let updatePlayerColor = createAction<UpdatePlayerColor>(
@@ -36,6 +40,7 @@ export let updatePlayerName =
 export let updatePlayerCursor = createAction<UpdatePlayerCursor>(
   'UPDATE_PLAYER_CURSOR'
 )
+export let moveCursor = createAction<MoveCursor>('MOVE_CURSOR')
 
 type AppAction = CreateGame | UpdateCell
 

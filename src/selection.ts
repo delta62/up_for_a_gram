@@ -4,59 +4,49 @@ let selectable = (grid: Grid, { r, c }: CellRef): boolean => {
   return !grid[r][c].black
 }
 
-export let findSelectionUp = (grid: Grid, selection: CellRef): CellRef => {
-  let pointer = selection
-
-  while (pointer.r > 0) {
-    pointer = { r: pointer.r - 1, c: pointer.c }
-    if (selectable(grid, pointer)) {
-      return pointer
-    }
-  }
-
-  return selection
+interface Dimensions {
+  width: number
+  height: number
 }
 
-export let findSelectionDown = (grid: Grid, selection: CellRef): CellRef => {
-  let pointer = selection
-  let height = grid.length
-
-  while (pointer.r < height - 1) {
-    pointer = { r: pointer.r + 1, c: pointer.c }
-    if (selectable(grid, pointer)) {
-      return pointer
-    }
-  }
-
-  return selection
+interface SelectOpts {
+  increment(cell: CellRef): CellRef
+  until(cell: CellRef & Dimensions): boolean
 }
 
-export let findSelectionLeft = (grid: Grid, selection: CellRef): CellRef => {
-  let pointer = selection
-
-  while (pointer.c > 0) {
-    pointer = { c: pointer.c - 1, r: pointer.r }
-    if (selectable(grid, pointer)) {
-      return pointer
-    }
-  }
-
-  return selection
-}
-
-export let findSelectionRight = (grid: Grid, selection: CellRef): CellRef => {
-  let pointer = selection
+let select = (opts: SelectOpts) => (grid: Grid, from: CellRef) => {
+  let { increment, until } = opts
   let width = grid[0].length
+  let height = grid.length
+  let pointer = from
 
-  while (pointer.c < width - 1) {
-    pointer = { c: pointer.c + 1, r: pointer.r }
-    if (selectable(grid, pointer)) {
-      return pointer
-    }
+  while (!until({ ...pointer, width, height })) {
+    pointer = increment(pointer)
+    if (selectable(grid, pointer)) return pointer
   }
 
-  return selection
+  return from
 }
+
+export let moveUp = select({
+  until: ({ r }) => r === 0,
+  increment: cell => ({ ...cell, r: cell.r - 1 }),
+})
+
+export let moveDown = select({
+  until: ({ r, height }) => r === height - 1,
+  increment: cell => ({ ...cell, r: cell.r + 1 }),
+})
+
+export let moveLeft = select({
+  until: ({ c }) => c === 0,
+  increment: cell => ({ ...cell, c: cell.c - 1 }),
+})
+
+export let moveRight = select({
+  until: ({ c, width }) => c === width - 1,
+  increment: cell => ({ ...cell, c: cell.c - 1 }),
+})
 
 export let findNextSelection = (
   grid: Grid,

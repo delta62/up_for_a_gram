@@ -20,6 +20,7 @@ export type Dispatch = typeof store.dispatch
 
 export {
   createGame,
+  moveCursor,
   updateCell,
   updatePlayerName,
   updatePlayerColor,

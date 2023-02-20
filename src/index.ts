@@ -1,6 +1,4 @@
-// import render from './render'
-// import { Game, Event, updateGame, updateGameInput } from './game-state'
-import { onKeyPress } from './input'
+import { keyPressToAction, onKeyPress } from './input'
 import log from './log'
 import { connect } from './websocket'
 import store from './store'
@@ -13,7 +11,9 @@ let main = async (gameId: string) => {
   let client = await connect(gameId)
 
   onKeyPress(key => {
-    // store.dispatch(keyInput(key))
+    let state = store.getState()
+    let action = keyPressToAction(state, key)
+    store.dispatch(action)
   })
 
   client.onGameEvent(event => {
