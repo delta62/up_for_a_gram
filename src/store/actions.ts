@@ -46,7 +46,8 @@ export let updatePlayerName =
 export let updatePlayerCursor = createAction<UpdatePlayerCursor>(
   'UPDATE_PLAYER_CURSOR'
 )
-export let moveCursor = createAction<MoveCursor>('MOVE_CURSOR')
+export let moveCursor = createAction<MoveCursor, 'MOVE_CURSOR'>('MOVE_CURSOR')
 export let switchMode = createAction('SWITCH_MODE')
-export let check = createAction<Check>('CHECK')
-export let reveal = createAction<Reveal>('REVEAL')
+export let check = createAction<Check, 'CHECK'>('CHECK')
+export let reveal = createAction<Reveal, 'REVEAL'>('REVEAL')
+export let setCell = createAction<UpdateCell, 'SET_CELL'>('SET_CELL')

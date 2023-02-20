@@ -120,3 +120,22 @@ export type GameEvent =
   | UpdateCursorEvent
   | UpdateDisplayNameEvent
   | UpdateColorEvent
+
+export interface SetCellParams {
+  cell: CellRef
+  value: string
+  color: string
+  pencil: false
+  id: string
+}
+
+export interface SetCellEvent {
+  timestamp: unknown
+  type: 'updateCell'
+  params: SetCellParams
+}
+
+export interface SendableGameEvent {
+  event: SetCellEvent
+  gid: string
+}

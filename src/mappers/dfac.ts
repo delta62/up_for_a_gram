@@ -1,5 +1,6 @@
 import { DEFAULT_COLOR, hslToRgb, parseHsl } from '../color'
-import { GameEvent } from '../dfac-api'
+import { GameEvent, SendableGameEvent } from '../dfac-api'
+import { KeyPressAction } from './input'
 import {
   check,
   createGame,
@@ -40,5 +41,39 @@ export let gameEventToAction = (event: GameEvent) => {
       return reveal({ scope: event.params.scope })
     default:
       throw new Error('not implemented ' + (event as any).type)
+  }
+}
+
+export let localActionToRemoteAction = (
+  action: KeyPressAction,
+  userId: string,
+  gameId: string
+): SendableGameEvent | null => {
+  switch (action.type) {
+    case 'SET_CELL':
+      let { cell, value } = action.payload
+      let color = 'hsl(83,40%,69%)'
+      let pencil = false
+      let id = userId
+      let timestamp = {
+        '.sv': 'timestamp',
+      }
+
+      return {
+        event: {
+          timestamp,
+          type: 'updateCell',
+          params: {
+            cell,
+            value,
+            color,
+            pencil,
+            id,
+          },
+        },
+        gid: gameId,
+      }
+    default:
+      return null
   }
 }

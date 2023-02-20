@@ -1,2 +1,2 @@
-export { gameEventToAction } from './dfac'
+export { localActionToRemoteAction, gameEventToAction } from './dfac'
 export { keyPressToAction } from './input'

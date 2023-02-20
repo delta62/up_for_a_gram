@@ -1,5 +1,5 @@
 import { default as io, Client as WsClient, Transport } from 'socket.io-client'
-import { GameEvent } from './dfac-api'
+import { GameEvent, SendableGameEvent } from './dfac-api'
 import log from './log'
 
 const SOCKET_HOST = 'https://api.foracross.com'
@@ -7,6 +7,7 @@ const SOCKET_HOST = 'https://api.foracross.com'
 export interface Client {
   syncAllEvents(): Promise<GameEvent[]>
   onGameEvent(callback: (event: GameEvent) => void): void
+  emit(event: SendableGameEvent): Promise<void>
 }
 
 export type GameEventCallback = (event: GameEvent) => void
@@ -31,6 +32,13 @@ export let connect = (gameId: string): Promise<Client> => {
       resolve({
         syncAllEvents: () => emit(socket, 'sync_all_game_events', gameId),
         onGameEvent: callback => (onGameEvent = callback),
+        emit: (event: SendableGameEvent) => {
+          log.debug({
+            message: 'sending event to dfac',
+            event,
+          })
+          return emit(socket, 'game_event', event)
+        },
       })
     })
 

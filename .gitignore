@@ -1,3 +1,4 @@
 dist/
 node_modules/
 *.log
+.dfac_id
