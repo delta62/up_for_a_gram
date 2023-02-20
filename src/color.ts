@@ -10,7 +10,9 @@ export interface Hsl {
   l: number
 }
 
-const HSL_PATTERN = /^hsl\(\d+, \d+%, \d+%\)$/
+const HSL_PATTERN = /^hsl\(\d+,\s*\d+%,\s*\d+%\)$/
+
+export const DEFAULT_COLOR: Hsl = { h: 146, s: 40, l: 60 }
 
 export let parseHsl = (str: string): Hsl | null => {
   let matches = str.match(HSL_PATTERN)

@@ -41,6 +41,8 @@ export let updatePlayerCursor = createAction<UpdatePlayerCursor>(
   'UPDATE_PLAYER_CURSOR'
 )
 export let moveCursor = createAction<MoveCursor>('MOVE_CURSOR')
+export let switchMode = createAction('SWITCH_MODE')
+export let check = createAction('CHECK')
 
 type AppAction = CreateGame | UpdateCell
 

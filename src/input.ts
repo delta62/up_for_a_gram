@@ -1,8 +1,5 @@
 import { stdin } from 'process'
-import { CellRef } from './dfac-api'
 import { showCursor } from './term'
-import { moveLeft, moveRight, moveUp, moveDown } from './selection'
-import { moveCursor, State } from './store'
 import log from './log'
 
 export interface InputKey {
@@ -82,25 +79,4 @@ export let onKeyPress = async (cb: KeyPressHandler): Promise<void> => {
         break
     }
   })
-}
-
-export let keyPressToAction = (state: State, key: Key) => {
-  let cell: CellRef
-
-  switch (key) {
-    case 'up':
-      cell = moveUp(state.grid, state.selection)
-      return moveCursor({ cell })
-    case 'down':
-      cell = moveDown(state.grid, state.selection)
-      return moveCursor({ cell })
-    case 'left':
-      cell = moveLeft(state.grid, state.selection)
-      return moveCursor({ cell })
-    case 'right':
-      cell = moveRight(state.grid, state.selection)
-      return moveCursor({ cell })
-    default:
-      throw new Error('not implemented')
-  }
 }

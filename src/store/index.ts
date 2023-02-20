@@ -4,9 +4,11 @@ import players from './players'
 import grid from './grid'
 import selection from './selection'
 import mode from './mode'
+import clues from './clues'
 
 let store = configureStore({
   reducer: {
+    clues,
     game,
     grid,
     mode,
@@ -19,8 +21,10 @@ export type State = ReturnType<typeof store.getState>
 export type Dispatch = typeof store.dispatch
 
 export {
+  check,
   createGame,
   moveCursor,
+  switchMode,
   updateCell,
   updatePlayerName,
   updatePlayerColor,

@@ -40,39 +40,9 @@
 //   let selection: CellRef
 
 //   switch (key) {
-//     case 'up':
-//       selection = findSelectionUp(game.grid, game.selection)
-//       return {
-//         ...game,
-//         selection,
-//       }
-//     case 'down':
-//       selection = findSelectionDown(game.grid, game.selection)
-//       return {
-//         ...game,
-//         selection,
-//       }
-//     case 'left':
-//       selection = findSelectionLeft(game.grid, game.selection)
-//       return {
-//         ...game,
-//         selection,
-//       }
-//     case 'right':
-//       selection = findSelectionRight(game.grid, game.selection)
-//       return {
-//         ...game,
-//         selection,
-//       }
 //     case 'delete':
 //       emitCellUpdate(gameId, socket, game.selection, '')
 //       return game
-//     case 'rotate':
-//       let mode: InputMode = game.mode === 'across' ? 'down' : 'across'
-//       return {
-//         ...game,
-//         mode,
-//       }
 //     case 'next':
 //       selection = findNextSelection(game)
 //       return {
