@@ -1,21 +1,12 @@
-import Action from './actions'
+import { createReducer } from '@reduxjs/toolkit'
+import { createGame } from './actions'
 
-export type Mode = 'across' | 'down'
+export type ModeState = 'across' | 'down'
 
-const DEFAULT_STATE: Mode = 'across'
+const DEFAULT_STATE: ModeState = 'across'
 
-let reducer = (state = DEFAULT_STATE, action: Action): Mode => {
-  switch (action.type) {
-    case 'GAME_ACTION':
-      switch (action.event.type) {
-        case 'create':
-          return DEFAULT_STATE
-        default:
-          return state
-      }
-    default:
-      return state
-  }
-}
+let reducer = createReducer(DEFAULT_STATE, builder => {
+  builder.addCase(createGame, () => DEFAULT_STATE)
+})
 
 export default reducer

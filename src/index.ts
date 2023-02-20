@@ -3,27 +3,26 @@
 import { onKeyPress } from './input'
 import log from './log'
 import { connect } from './websocket'
-import createStore, { gameAction, keyInput } from './store'
+import store from './store'
 
 export const USER_ID = '84c2e26'
 
 let main = async (gameId: string) => {
   log.info('hello world')
 
-  let store = createStore()
   let client = await connect(gameId)
 
   onKeyPress(key => {
-    store.dispatch(keyInput(key))
+    // store.dispatch(keyInput(key))
   })
 
   client.onGameEvent(event => {
-    store.dispatch(gameAction(event))
+    // store.dispatch(gameAction(event))
   })
 
   // Sync all events so far prior to hooking up renders to avoid useless paints
   let initEvents = await client.syncAllEvents()
-  initEvents.forEach(event => store.dispatch(gameAction(event)))
+  // initEvents.forEach(event => store.dispatch(gameAction(event)))
 
   store.subscribe(() => {
     let state = store.getState()

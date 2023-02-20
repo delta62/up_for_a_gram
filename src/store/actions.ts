@@ -1,25 +1,42 @@
-import { Action } from 'redux'
-import { GameEvent } from '../dfac-api'
-import { Key } from '../input'
+import { createAction } from '@reduxjs/toolkit'
+import { Rgb } from '../color'
+import { CellRef, WsGame } from '../dfac-api'
 
-export interface GameAction extends Action<'GAME_ACTION'> {
-  event: GameEvent
+export interface CreateGame {
+  game: WsGame
 }
 
-export let gameAction = (event: GameEvent): GameAction => ({
-  type: 'GAME_ACTION',
-  event,
-})
-
-export let keyInput = (key: Key): KeyInputAction => ({
-  type: 'KEY_INPUT',
-  key,
-})
-
-export interface KeyInputAction extends Action<'KEY_INPUT'> {
-  key: Key
+export interface UpdateCell {
+  cell: CellRef
+  value: string
 }
 
-type AppAction = GameAction | KeyInputAction
+export interface UpdatePlayerColor {
+  playerId: string
+  color: Rgb
+}
+
+export interface UpdatePlayerName {
+  playerId: string
+  name: string
+}
+
+export interface UpdatePlayerCursor {
+  playerId: string
+  cell: CellRef
+}
+
+export let createGame = createAction<CreateGame>('CREATE_GAME')
+export let updateCell = createAction<UpdateCell>('UPDATE_CELL')
+export let updatePlayerColor = createAction<UpdatePlayerColor>(
+  'UPDATE_PLAYER_COLOR'
+)
+export let updatePlayerName =
+  createAction<UpdatePlayerName>('UPDATE_PLAYER_NAME')
+export let updatePlayerCursor = createAction<UpdatePlayerCursor>(
+  'UPDATE_PLAYER_CURSOR'
+)
+
+type AppAction = CreateGame | UpdateCell
 
 export default AppAction

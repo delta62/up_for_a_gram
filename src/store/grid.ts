@@ -1,33 +1,20 @@
-import { GameEvent, GridRow } from '../dfac-api'
-import Action from './actions'
+import { createReducer } from '@reduxjs/toolkit'
+import { GridRow } from '../dfac-api'
+import { createGame, updateCell } from './actions'
 
-type GridState = GridRow[]
+export type GridState = GridRow[]
 
 const DEFAULT_STATE: GridState = []
 
-let reduceGameEvent = (state: GridState, event: GameEvent): GridState => {
-  switch (event.type) {
-    case 'updateCell':
-      let [...grid] = state
-      let { r, c } = event.params.cell
-      let { value } = event.params
-      let newCell = { ...grid[r][c], value }
-      grid[r][c] = newCell
+let grid = createReducer(DEFAULT_STATE, builder => {
+  builder
+    .addCase(createGame, (_, action) => action.payload.game.grid)
+    .addCase(updateCell, (state, action) => {
+      let { r, c } = action.payload.cell
+      let { value } = action.payload
 
-      return grid
-    case 'create':
-      return event.params.game.grid
-    default:
-      return state
-  }
-}
+      state[r][c].value = value
+    })
+})
 
-let reducer = (state = DEFAULT_STATE, action: Action): GridState => {
-  if (action.type === 'GAME_ACTION') {
-    return reduceGameEvent(state, action.event)
-  }
-
-  return state
-}
-
-export default reducer
+export default grid

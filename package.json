@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@reduxjs/toolkit": "^1.9.2",
     "chalk": "^4.0.0",
     "printable-characters": "^1.0.42",
     "redux": "^4.2.1",

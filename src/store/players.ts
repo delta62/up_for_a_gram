@@ -1,12 +1,11 @@
+import { CellRef } from '../dfac-api'
+import { Rgb } from '../color'
+import { createReducer } from '@reduxjs/toolkit'
 import {
-  CellRef,
-  GameEvent,
-  UpdateColorParams,
-  UpdateCursorParams,
-  UpdateDisplayNameParams,
-} from '../dfac-api'
-import Action from './actions'
-import { hslToRgb, parseHsl, Rgb } from '../color'
+  updatePlayerColor,
+  updatePlayerCursor,
+  updatePlayerName,
+} from './actions'
 
 export interface Player {
   id: string
@@ -17,90 +16,35 @@ export interface Player {
 
 export type PlayersState = Record<string, Player>
 
-const DEFAULT_STATE = {}
+const DEFAULT_STATE: PlayersState = {}
 
-const DEFAULT_PLAYER = {
+const DEFAULT_PLAYER: Player = {
   id: '',
   name: '?',
   color: { r: 255, g: 0, b: 0 },
   cursor: { r: 0, c: 0 },
 }
 
-let updatePlayerCursor = (
-  state: PlayersState,
-  { id, cell }: UpdateCursorParams
-) => {
-  let player = {
-    ...(state[id] ?? DEFAULT_PLAYER),
-    id,
-    cursor: cell,
-  }
-
-  return {
-    ...state,
-    [id]: player,
-  }
-}
-
-let updatePlayerName = (
-  state: PlayersState,
-  { id, displayName }: UpdateDisplayNameParams
-) => {
-  let player = {
-    ...(state[id] || DEFAULT_PLAYER),
-    id,
-    name: displayName,
-  }
-
-  return {
-    ...state,
-    [id]: player,
-  }
-}
-
-let updatePlayerColor = (
-  state: PlayersState,
-  { id, color }: UpdateColorParams
-) => {
-  let hsl = parseHsl(color)!
-  let rgb = hslToRgb(hsl)
-
-  let player = {
-    ...(state[id] || DEFAULT_PLAYER),
-    id,
-    color: rgb,
-  }
-
-  return {
-    ...state,
-    [id]: player,
-  }
-}
-
-let reduceGameAction = (
-  state: PlayersState,
-  event: GameEvent
-): PlayersState => {
-  switch (event.type) {
-    case 'updateCursor':
-      return updatePlayerCursor(state, event.params)
-    case 'updateDisplayName':
-      return updatePlayerName(state, event.params)
-    case 'updateColor':
-      return updatePlayerColor(state, event.params)
-    case 'create':
-      return {}
-    default:
-      return state
-  }
-}
-
-let players = (state = DEFAULT_STATE, action: Action): PlayersState => {
-  if (action.type === 'GAME_ACTION') {
-    return reduceGameAction(state, action.event)
-  }
-
-  return state
-}
+let players = createReducer(DEFAULT_STATE, builder => {
+  builder
+    .addCase(updatePlayerCursor, (state, action) => {
+      let { playerId, cell } = action.payload
+      state[playerId] ??= DEFAULT_PLAYER
+      state[playerId].id = playerId
+      state[playerId].cursor = cell
+    })
+    .addCase(updatePlayerColor, (state, action) => {
+      let { playerId, color } = action.payload
+      state[playerId] ??= DEFAULT_PLAYER
+      state[playerId].id = playerId
+      state[playerId].color = color
+    })
+    .addCase(updatePlayerName, (state, action) => {
+      let { playerId, name } = action.payload
+      state[playerId] ??= DEFAULT_PLAYER
+      state[playerId].id = playerId
+      state[playerId].name = name
+    })
+})
 
 export default players
