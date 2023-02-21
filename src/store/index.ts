@@ -1,9 +1,9 @@
 import { combineReducers, configureStore, Middleware } from '@reduxjs/toolkit'
-import { Client } from '../websocket'
 import game from './game'
 import players from './players'
 import grid from './grid'
 import selection from './selection'
+import solution from './solution'
 import mode from './mode'
 import clues from './clues'
 import log from '../log'
@@ -20,6 +20,7 @@ let rootReducer = combineReducers({
   mode,
   players,
   selection,
+  solution,
 })
 
 let createStore = () => {
@@ -40,6 +41,7 @@ export {
   createGame,
   moveCursor,
   reveal,
+  setMode,
   switchMode,
   updateCell,
   updatePlayerName,

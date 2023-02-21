@@ -40,7 +40,7 @@ export let render = (block: Block) => {
       cursorY = Math.floor((screen.height - lines.length) / 2)
       break
     case 'end':
-      cursorY = screen.height - 1
+      cursorY = screen.height - 3
       break
   }
 

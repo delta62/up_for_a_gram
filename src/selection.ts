@@ -48,100 +48,100 @@ export let moveRight = select({
   increment: cell => ({ ...cell, c: cell.c + 1 }),
 })
 
-export let findNextSelection = (
+let invert = (mode: InputMode): InputMode => {
+  return mode === 'across' ? 'down' : 'across'
+}
+
+let noEmptySpaces = (grid: Grid): boolean => {
+  return grid
+    .flat()
+    .filter(cell => !cell.black)
+    .every(cell => !!cell.value)
+}
+
+let tryMoveOnce = (
   grid: Grid,
   mode: InputMode,
-  clues: Clues,
   selection: CellRef
-): CellRef => {
-  let { r, c } = selection
-
+): CellRef | null => {
   if (mode === 'across') {
-    let origin = grid[r][c].parents?.across!
-    let target = clues.across
-      .map(c => !!c)
-      .findIndex((c, i) => c && i > origin!)
-
-    if (target === -1) {
-      // nothing else left to go to
-      return selection
-    }
-
-    for (let row = 0; row < grid.length; row++) {
-      for (let col = 0; col < grid[0].length; col++) {
-        if (grid[row][col].parents?.across === target) {
-          return { r: row, c: col }
-        }
-      }
-    }
-
-    throw new Error('should not get here')
+    let width = grid[0].length
+    let { r, c } = selection
+    c += 1
+    return c < width && !grid[r][c].black ? { r, c } : null
   } else {
-    let origin = grid[r][c].parents?.down!
-    let target = clues.down.map(c => !!c).findIndex((c, i) => c && i > origin!)
-
-    if (target === -1) {
-      // nothing else left to go to
-      return selection
-    }
-
-    for (let row = 0; row < grid.length; row++) {
-      for (let col = 0; col < grid[0].length; col++) {
-        if (grid[row][col].parents?.down === target) {
-          return { r: row, c: col }
-        }
-      }
-    }
-
-    throw new Error('should not get here')
+    let height = grid.length
+    let { r, c } = selection
+    r += 1
+    return r < height && !grid[r][c].black ? { r, c } : null
   }
 }
 
-export let findPrevSelection = (
+// TODO update to skip over populated words
+let firstOfType = (grid: Grid, mode: InputMode): CellRef | null => {
+  return (
+    grid
+      .flatMap((row, r) => row.map((cell, c) => ({ ...cell, r, c })))
+      .filter(cell => !cell.black)
+      .find(cell => cell.parents?.[mode] != null) || null
+  )
+}
+
+export let nextCell = (
+  grid: Grid,
+  mode: InputMode,
+  clues: Clues,
+  selection: CellRef
+): [InputMode, CellRef] => {
+  if (noEmptySpaces(grid)) return [mode, selection]
+
+  let adjacentCell = tryMoveOnce(grid, mode, selection)
+  if (adjacentCell) return [mode, adjacentCell]
+
+  let nextWordCell = moveToNext(grid, mode, clues, selection)
+  if (nextWordCell) return [mode, nextWordCell]
+
+  mode = invert(mode)
+  let firstOfOtherType = firstOfType(grid, mode)
+  return [mode, firstOfOtherType!]
+}
+
+export let moveToNext = (
   grid: Grid,
   mode: InputMode,
   clues: Clues,
   selection: CellRef
 ): CellRef => {
   let { r, c } = selection
+  let origin = grid[r][c].parents?.[mode]!
+  let target = clues[mode].map(c => !!c).findIndex((c, i) => c && i > origin!)
 
-  if (mode === 'across') {
-    let origin = grid[r][c].parents?.across!
-    let target = clues.across
-      .map(c => !!c)
-      .findIndex((c, i) => c && i < origin!)
-
-    if (target === -1) {
-      // nothing else left to go to
-      return selection
-    }
-
-    for (let row = 0; row < grid.length; row++) {
-      for (let col = 0; col < grid[0].length; col++) {
-        if (grid[row][col].parents?.across === target) {
-          return { r: row, c: col }
-        }
-      }
-    }
-
-    throw new Error('should not get here')
-  } else {
-    let origin = grid[r][c].parents?.down!
-    let target = clues.down.map(c => !!c).findIndex((c, i) => c && i < origin!)
-
-    if (target === -1) {
-      // nothing else left to go to
-      return selection
-    }
-
-    for (let row = 0; row < grid.length; row++) {
-      for (let col = 0; col < grid[0].length; col++) {
-        if (grid[row][col].parents?.down === target) {
-          return { r: row, c: col }
-        }
-      }
-    }
-
-    throw new Error('should not get here')
+  if (target === -1) {
+    // nothing else left to go to
+    return selection
   }
+
+  // TODO will select completed words
+  return grid
+    .flatMap((row, r) => row.map((cell, c) => ({ ...cell, r, c })))
+    .find(cell => cell.parents?.[mode] === target)!
+}
+
+export let moveToPrev = (
+  grid: Grid,
+  mode: InputMode,
+  clues: Clues,
+  selection: CellRef
+): CellRef => {
+  let { r, c } = selection
+  let origin = grid[r][c].parents?.[mode]!
+  let target = clues[mode].reduce((acc, clue, i) => {
+    if (!!clue && i < origin) return i
+    return acc
+  }, origin)
+
+  // TODO will select completed words
+  return grid
+    .flatMap((row, r) => row.map((cell, c) => ({ ...cell, r, c })))
+    .find(cell => cell.parents?.[mode] === target)!
 }

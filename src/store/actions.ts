@@ -1,6 +1,7 @@
 import { createAction } from '@reduxjs/toolkit'
 import { Rgb } from '../color'
 import { CellRef, WsGame } from '../dfac-api'
+import { ModeState } from './mode'
 
 export interface CreateGame {
   game: WsGame
@@ -8,6 +9,7 @@ export interface CreateGame {
 
 export interface UpdateCell {
   cell: CellRef
+  correct: boolean
   value: string
 }
 
@@ -48,6 +50,7 @@ export let updatePlayerCursor = createAction<UpdatePlayerCursor>(
 )
 export let moveCursor = createAction<MoveCursor, 'MOVE_CURSOR'>('MOVE_CURSOR')
 export let switchMode = createAction('SWITCH_MODE')
+export let setMode = createAction<ModeState, 'SET_MODE'>('SET_MODE')
 export let check = createAction<Check, 'CHECK'>('CHECK')
 export let reveal = createAction<Reveal, 'REVEAL'>('REVEAL')
 export let setCell = createAction<UpdateCell, 'SET_CELL'>('SET_CELL')

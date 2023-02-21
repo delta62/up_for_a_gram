@@ -1,7 +1,15 @@
-import { CellRef } from '../dfac-api'
-import { moveLeft, moveRight, moveUp, moveDown } from '../selection'
+import { CellRef, InputMode } from '../dfac-api'
+import {
+  moveLeft,
+  moveRight,
+  moveUp,
+  moveDown,
+  nextCell,
+  moveToNext,
+  moveToPrev,
+} from '../selection'
 import { Key } from '../input'
-import { moveCursor, switchMode, State } from '../store'
+import { moveCursor, setMode, switchMode, State } from '../store'
 import { setCell } from '../store/actions'
 
 /**
@@ -10,33 +18,59 @@ import { setCell } from '../store/actions'
 export let keyPressToAction = (state: State, key: Key) => {
   let cell: CellRef
   let value: string
+  let nextMode: InputMode
+  let nextSelection: CellRef
 
   switch (key) {
     case 'up':
-      cell = moveUp(state.grid, state.selection)
-      return moveCursor({ cell })
+      cell = moveUp(state.grid.cells, state.selection)
+      return [moveCursor({ cell })]
     case 'down':
-      cell = moveDown(state.grid, state.selection)
-      return moveCursor({ cell })
+      cell = moveDown(state.grid.cells, state.selection)
+      return [moveCursor({ cell })]
     case 'left':
-      cell = moveLeft(state.grid, state.selection)
-      return moveCursor({ cell })
+      cell = moveLeft(state.grid.cells, state.selection)
+      return [moveCursor({ cell })]
     case 'right':
-      cell = moveRight(state.grid, state.selection)
-      return moveCursor({ cell })
+      cell = moveRight(state.grid.cells, state.selection)
+      return [moveCursor({ cell })]
     case 'rotate':
-      return switchMode()
+      return [switchMode()]
     case 'delete':
       cell = state.selection
       value = ''
-      return setCell({ cell, value: '' })
-    case 'prev':
+      return [setCell({ cell, value: '', correct: false })]
     case 'next':
-      throw new Error('not implemented')
+      nextSelection = moveToNext(
+        state.grid.cells,
+        state.mode,
+        state.clues,
+        state.selection
+      )
+      return [moveCursor({ cell: nextSelection })]
+    case 'prev':
+      nextSelection = moveToPrev(
+        state.grid.cells,
+        state.mode,
+        state.clues,
+        state.selection
+      )
+      return [moveCursor({ cell: nextSelection })]
     default:
       cell = state.selection
       value = key.key.toUpperCase()
-      return setCell({ cell, value })
+      ;[nextMode, nextSelection] = nextCell(
+        state.grid.cells,
+        state.mode,
+        state.clues,
+        cell
+      )
+      let correct = state.solution[cell.r][cell.c] === value
+      return [
+        setCell({ cell, value, correct }),
+        moveCursor({ cell: nextSelection }),
+        setMode(nextMode),
+      ]
   }
 }
 

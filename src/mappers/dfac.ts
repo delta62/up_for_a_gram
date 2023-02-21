@@ -1,24 +1,29 @@
 import { DEFAULT_COLOR, hslToRgb, parseHsl } from '../color'
-import { GameEvent, SendableGameEvent } from '../dfac-api'
+import { CellRef, GameEvent, SendableGameEvent } from '../dfac-api'
 import { KeyPressAction } from './input'
 import {
   check,
   createGame,
   reveal,
+  State,
   updateCell,
   updatePlayerColor,
   updatePlayerCursor,
   updatePlayerName,
 } from '../store'
 
-export let gameEventToAction = (event: GameEvent) => {
+export let gameEventToAction = (event: GameEvent, state: State) => {
   let playerId: string
+  let cell: CellRef
+  let value: string
 
   switch (event.type) {
     case 'create':
       return createGame({ game: event.params.game })
     case 'updateCell':
-      return updateCell({ cell: event.params.cell, value: event.params.value })
+      ;({ cell, value } = event.params)
+      let correct = state.solution[cell.r][cell.c] === value
+      return updateCell({ cell, value, correct })
     case 'updateColor':
       let hsl = parseHsl(event.params.color) || DEFAULT_COLOR
       let color = hslToRgb(hsl)
@@ -29,7 +34,7 @@ export let gameEventToAction = (event: GameEvent) => {
       })
     case 'updateCursor':
       playerId = event.params.id
-      let cell = event.params.cell
+      cell = event.params.cell
       return updatePlayerCursor({ playerId, cell })
     case 'updateDisplayName':
       playerId = event.params.id
@@ -45,12 +50,13 @@ export let gameEventToAction = (event: GameEvent) => {
 }
 
 export let localActionToRemoteAction = (
-  action: KeyPressAction,
+  actions: KeyPressAction,
   userId: string,
   gameId: string
-): SendableGameEvent | null => {
-  switch (action.type) {
-    case 'SET_CELL':
+): SendableGameEvent[] => {
+  let ret: SendableGameEvent[] = []
+  for (let action of actions) {
+    if (action.type === 'SET_CELL') {
       let { cell, value } = action.payload
       let color = 'hsl(83,40%,69%)'
       let pencil = false
@@ -59,7 +65,7 @@ export let localActionToRemoteAction = (
         '.sv': 'timestamp',
       }
 
-      return {
+      ret.push({
         event: {
           timestamp,
           type: 'updateCell',
@@ -72,8 +78,9 @@ export let localActionToRemoteAction = (
           },
         },
         gid: gameId,
-      }
-    default:
-      return null
+      })
+    }
   }
+
+  return ret
 }

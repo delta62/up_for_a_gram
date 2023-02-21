@@ -19,24 +19,24 @@ let main = async (gameId: string) => {
 
   onKeyPress(key => {
     let state = store.getState()
-    let action = keyPressToAction(state, key)
-    store.dispatch(action)
+    let actions = keyPressToAction(state, key)
+    actions.forEach(a => store.dispatch(a))
 
-    let remoteAction = localActionToRemoteAction(action, uid, gameId)
-    if (remoteAction) {
-      client.emit(remoteAction)
-    }
+    let remoteActions = localActionToRemoteAction(actions, uid, gameId)
+    remoteActions.forEach(a => client.emit(a))
   })
 
   client.onGameEvent(event => {
-    let action = gameEventToAction(event)
+    let state = store.getState()
+    let action = gameEventToAction(event, state)
     store.dispatch(action)
   })
 
   // Sync all events so far prior to hooking up renders to avoid useless paints
   let initEvents = await client.syncAllEvents()
   initEvents.forEach(event => {
-    let action = gameEventToAction(event)
+    let state = store.getState()
+    let action = gameEventToAction(event, state)
     store.dispatch(action)
   })
 

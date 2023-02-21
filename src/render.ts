@@ -1,4 +1,4 @@
-import { yellow, green } from 'chalk'
+import chalk from 'chalk'
 import { Grid } from './dfac-api'
 import { State } from './store'
 import { clear, hideCursor } from './term'
@@ -14,7 +14,7 @@ let render = (state: State) => {
   uiRender(header)
 
   let { r, c } = state.selection
-  let clue = state.grid[r][c].parents?.[state.mode]
+  let clue = state.grid.cells[r][c].parents?.[state.mode]
   let clueText = clue ? state.clues[state.mode][clue]! : ''
 
   if (clueText) {
@@ -30,37 +30,48 @@ let render = (state: State) => {
 }
 
 let renderPuzzle = (state: State, block: Block) => {
-  let width = state.grid[0].length
-  let height = state.grid.length
+  let { width, height } = state.grid
 
-  printHead(state.grid, width, block)
+  printHead(state.grid.cells, width, block)
 
   for (let r = 0; r < height; r++) {
-    let row = state.grid[r]
+    let row = state.grid.cells[r]
     let output = ['│']
+    let { selection } = state
 
     for (let c in row) {
-      let selected =
-        state.selection.r === r && state.selection.c === parseInt(c)
       let cell = row[c]
       if (cell.black) {
         output.push('███')
       } else {
+        let selected = selection.r === r && selection.c === parseInt(c)
+        let selectedCell = state.grid.cells[selection.r][selection.c]
+        let otherFocused = Object.values(state.players).find(
+          p => r === p.cursor.r && parseInt(c) === p.cursor.c
+        )
+        let correct = cell.state === 'verified'
+        let incorrect = cell.state === 'incorrect'
+        let selectedWord = selectedCell.parents?.[state.mode]
+        let inWord = cell.parents?.[state.mode] === selectedWord
+
+        let style =
+          (selected && chalk.yellow) ||
+          (correct && chalk.blue) ||
+          (incorrect && chalk.red) ||
+          chalk.reset
+
         if (selected) {
-          output.push(` ${yellow.underline(cell.value || ' ')} `)
-        } else {
-          output.push(` ${cell.value || ' '}`)
-
-          let someoneElseSelected = Object.values(state.players).find(
-            p => r === p.cursor.r && parseInt(c) === p.cursor.c
-          )
-
-          if (someoneElseSelected) {
-            output.push(`${green('*')}`)
-          } else {
-            output.push(' ')
-          }
+          style = style.underline
         }
+
+        if (inWord) {
+          style = style.bgGrey
+        }
+
+        let text =
+          ' ' + style(cell.value || ' ') + ((otherFocused && '*') || ' ')
+
+        output.push(text)
       }
 
       output.push('│')
@@ -69,7 +80,7 @@ let renderPuzzle = (state: State, block: Block) => {
     writeLine(output.join(''), block)
 
     if (r !== height - 1) {
-      printDivider(state.grid, width, r, block)
+      printDivider(state.grid.cells, width, r, block)
     }
   }
 
