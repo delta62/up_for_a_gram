@@ -12,6 +12,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.2",
     "chalk": "^4.0.0",
