@@ -54,3 +54,11 @@ export let setMode = createAction<ModeState, 'SET_MODE'>('SET_MODE')
 export let check = createAction<Check, 'CHECK'>('CHECK')
 export let reveal = createAction<Reveal, 'REVEAL'>('REVEAL')
 export let setCell = createAction<UpdateCell, 'SET_CELL'>('SET_CELL')
+
+// These actions are ignored by the store; they are for sending to the server
+export type StartCheck = Check
+export type StartReveal = Reveal
+export let startCheck = createAction<StartCheck, 'START_CHECK'>('START_CHECK')
+export let startReveal = createAction<StartReveal, 'START_REVEAL'>(
+  'START_REVEAL'
+)

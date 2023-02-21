@@ -1,5 +1,13 @@
 import { DEFAULT_COLOR, hslToRgb, parseHsl } from '../color'
-import { CellRef, GameEvent, SendableGameEvent } from '../dfac-api'
+import {
+  CellRef,
+  CheckEvent,
+  GameEvent,
+  RevealEvent,
+  SendableGameEvent,
+  SendableProps,
+  SetCellEvent,
+} from '../dfac-api'
 import { KeyPressAction } from './input'
 import {
   check,
@@ -11,6 +19,11 @@ import {
   updatePlayerCursor,
   updatePlayerName,
 } from '../store'
+import { v4 as uuid4 } from 'uuid'
+
+const SERVER_TIMESTAMP = {
+  '.sv': 'timestamp',
+}
 
 export let gameEventToAction = (event: GameEvent, state: State) => {
   let playerId: string
@@ -54,33 +67,60 @@ export let localActionToRemoteAction = (
   userId: string,
   gameId: string
 ): SendableGameEvent[] => {
-  let ret: SendableGameEvent[] = []
-  for (let action of actions) {
-    if (action.type === 'SET_CELL') {
-      let { cell, value } = action.payload
-      let color = 'hsl(83,40%,69%)'
-      let pencil = false
-      let id = userId
-      let timestamp = {
-        '.sv': 'timestamp',
-      }
+  let ret: SendableGameEvent['event'][] = []
+  let scope: CellRef[]
 
-      ret.push({
-        event: {
-          timestamp,
-          type: 'updateCell',
-          params: {
-            cell,
-            value,
-            color,
-            pencil,
-            id,
-          },
-        },
-        gid: gameId,
-      })
+  for (let action of actions) {
+    switch (action.type) {
+      case 'SET_CELL':
+        let { cell, value } = action.payload
+        ret.push(createUpdateEvent(userId, cell, value))
+        break
+      case 'START_REVEAL':
+        scope = action.payload.scope
+        ret.push(createRevealEvent(scope))
+        break
+      case 'START_CHECK':
+        scope = action.payload.scope
+        ret.push(createCheckEvent(scope))
+        break
     }
   }
 
-  return ret
+  return ret.map(event => ({ event, gid: gameId }))
 }
+
+let createRevealEvent = (scope: CellRef[]): RevealEvent & SendableProps => ({
+  type: 'reveal',
+  timestamp: SERVER_TIMESTAMP,
+  id: uuid4(),
+  params: {
+    scope,
+  },
+})
+
+let createCheckEvent = (scope: CellRef[]): CheckEvent & SendableProps => ({
+  type: 'check',
+  timestamp: SERVER_TIMESTAMP,
+  id: uuid4(),
+  params: {
+    scope,
+  },
+})
+
+let createUpdateEvent = (
+  userId: string,
+  cell: CellRef,
+  value: string
+): SetCellEvent & SendableProps => ({
+  timestamp: SERVER_TIMESTAMP,
+  type: 'updateCell',
+  id: uuid4(),
+  params: {
+    cell,
+    value,
+    color: 'hsl(83,40%,69%)',
+    pencil: false,
+    id: userId,
+  },
+})

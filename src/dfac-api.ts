@@ -129,13 +129,17 @@ export interface SetCellParams {
   id: string
 }
 
-export interface SetCellEvent {
+export interface SendableProps {
   timestamp: unknown
+  id: string
+}
+
+export interface SetCellEvent {
   type: 'updateCell'
   params: SetCellParams
 }
 
 export interface SendableGameEvent {
-  event: SetCellEvent
+  event: (SetCellEvent | CheckEvent | RevealEvent) & SendableProps
   gid: string
 }

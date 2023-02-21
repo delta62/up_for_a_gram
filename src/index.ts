@@ -9,6 +9,7 @@ import {
   gameEventToAction,
   localActionToRemoteAction,
 } from './mappers'
+import { showCursor } from './term'
 
 let main = async (gameId: string) => {
   log.info('hello world')
@@ -20,10 +21,10 @@ let main = async (gameId: string) => {
   onKeyPress(key => {
     let state = store.getState()
     let actions = keyPressToAction(state, key)
-    actions.forEach(a => store.dispatch(a))
+    actions.forEach(store.dispatch)
 
     let remoteActions = localActionToRemoteAction(actions, uid, gameId)
-    remoteActions.forEach(a => client.emit(a))
+    remoteActions.forEach(client.emit)
   })
 
   client.onGameEvent(event => {
@@ -54,7 +55,30 @@ if (!gameId) {
   process.exit(1)
 }
 
+if (['-h', '--help'].includes(gameId)) {
+  console.log(`${process.argv[1]} <game_id>
+
+An unofficial CLI frontend for downforacross.com
+
+Key Bindings
+------------
+
+Arrow keys:    move                            Alt-P:      Check puzzle
+Spacebar:      across/down toggle              Alt-W:      Check word
+Tab:           next clue                       Alt-C:      Check cell
+S-Tab:         previous clue                   S-Alt-P:    Reveal puzzle
+Backspace:     delete and move backward        S-Alt-W:    Reveal word
+Delete:        delete without moving           S-Alt-C:    Reveal cell
+
+Ctrl-C: quit
+
+Happy crosswording!
+`)
+  process.exit()
+}
+
 main(gameId).catch(err => {
+  showCursor()
   log.error(err)
   console.error(err)
 })

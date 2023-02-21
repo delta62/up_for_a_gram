@@ -10,8 +10,18 @@ import {
   prevCell,
 } from '../selection'
 import { Key } from '../input'
-import { moveCursor, setMode, switchMode, State } from '../store'
-import { setCell } from '../store/actions'
+import {
+  moveCursor,
+  setMode,
+  switchMode,
+  State,
+  getCellScope,
+  getPuzzleScope,
+  getWordScope,
+  setCell,
+  startReveal,
+  startCheck,
+} from '../store'
 
 /**
  * Map key press events to store actions
@@ -21,6 +31,7 @@ export let keyPressToAction = (state: State, key: Key) => {
   let value: string
   let nextMode: InputMode
   let nextSelection: CellRef
+  let scope: CellRef[]
 
   switch (key) {
     case 'up':
@@ -71,6 +82,24 @@ export let keyPressToAction = (state: State, key: Key) => {
         state.selection
       )
       return [moveCursor({ cell: nextSelection })]
+    case 'check_puzzle':
+      scope = getPuzzleScope(state)
+      return [startCheck({ scope })]
+    case 'check_word':
+      scope = getWordScope(state)
+      return [startCheck({ scope })]
+    case 'check_cell':
+      scope = getCellScope(state)
+      return [startCheck({ scope })]
+    case 'reveal_puzzle':
+      scope = getPuzzleScope(state)
+      return [startReveal({ scope })]
+    case 'reveal_word':
+      scope = getWordScope(state)
+      return [startReveal({ scope })]
+    case 'reveal_cell':
+      scope = getCellScope(state)
+      return [startReveal({ scope })]
     default:
       cell = state.selection
       value = key.key.toUpperCase()

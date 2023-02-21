@@ -41,7 +41,10 @@ export {
   createGame,
   moveCursor,
   reveal,
+  setCell,
   setMode,
+  startCheck,
+  startReveal,
   switchMode,
   updateCell,
   updatePlayerName,
@@ -49,6 +52,12 @@ export {
   updatePlayerCursor,
 } from './actions'
 
-export { getClueSolved, getSolved } from './selectors'
+export {
+  getClueSolved,
+  getCellScope,
+  getPuzzleScope,
+  getWordScope,
+  getSolved,
+} from './selectors'
 
 export default createStore
