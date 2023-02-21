@@ -49,6 +49,6 @@ export {
   updatePlayerCursor,
 } from './actions'
 
-export { getSolved } from './selectors'
+export { getClueSolved, getSolved } from './selectors'
 
 export default createStore

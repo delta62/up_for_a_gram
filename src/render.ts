@@ -1,11 +1,18 @@
 import chalk from 'chalk'
 import { Grid } from './dfac-api'
-import { getSolved, State } from './store'
+import { getClueSolved, getSolved, State } from './store'
 import { clear, hideCursor } from './term'
 import { Block, block, render as uiRender, writeLine } from './ui'
+import log from './log'
+
+let initialRender = true
 
 let render = (state: State) => {
-  clear()
+  if (initialRender) {
+    clear()
+    initialRender = false
+  }
+
   hideCursor()
 
   let header = block({ valign: 'start', halign: 'middle' })
@@ -19,14 +26,20 @@ let render = (state: State) => {
   uiRender(header)
 
   let { r, c } = state.selection
+
   let clue = state.grid.cells[r][c].parents?.[state.mode]
   let clueText = clue ? state.clues[state.mode][clue]! : ''
 
   if (clueText) {
+    let footer = block({ height: 3, valign: 'end', halign: 'middle' })
     let displayText = `${clue} ${state.mode.toUpperCase()}: ${clueText}`
-    let footer = block({ valign: 'end', halign: 'middle' })
+    log.debug({ displayText })
+    if (getClueSolved(state, { r, c })) {
+      displayText = chalk.dim(displayText)
+    }
+
     writeLine(displayText, footer)
-    uiRender(footer)
+    uiRender(footer, { clear: true, wrap: true })
   }
 
   let puzzle = block({ valign: 'middle', halign: 'middle' })
