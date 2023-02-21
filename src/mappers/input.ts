@@ -7,6 +7,7 @@ import {
   nextCell,
   moveToNext,
   moveToPrev,
+  prevCell,
 } from '../selection'
 import { Key } from '../input'
 import { moveCursor, setMode, switchMode, State } from '../store'
@@ -40,6 +41,20 @@ export let keyPressToAction = (state: State, key: Key) => {
       cell = state.selection
       value = ''
       return [setCell({ cell, value: '', correct: false })]
+    case 'backspace':
+      cell = state.selection
+      value = ''
+      ;[nextMode, nextSelection] = prevCell(
+        state.grid.cells,
+        state.mode,
+        state.clues,
+        cell
+      )
+      return [
+        setCell({ cell, value: '', correct: false }),
+        moveCursor({ cell: nextSelection }),
+        setMode(nextMode),
+      ]
     case 'next':
       nextSelection = moveToNext(
         state.grid.cells,

@@ -7,6 +7,7 @@ export interface InputKey {
 }
 
 export type Key =
+  | 'backspace'
   | 'delete'
   | 'down'
   | 'left'
@@ -45,8 +46,10 @@ export let onKeyPress = async (cb: KeyPressHandler): Promise<void> => {
 
     switch (key) {
       case DELETE_KEY:
-      case BACKSPACE_KEY:
         cb('delete')
+        break
+      case BACKSPACE_KEY:
+        cb('backspace')
         break
       case UP_ARROW:
         cb('up')

@@ -77,7 +77,22 @@ let tryMoveOnce = (
   }
 }
 
-// TODO update to skip over populated words
+let tryMoveBackOnce = (
+  grid: Grid,
+  mode: InputMode,
+  selection: CellRef
+): CellRef | null => {
+  if (mode === 'across') {
+    let { r, c } = selection
+    c -= 1
+    return c >= 0 && !grid[r][c].black ? { r, c } : null
+  } else {
+    let { r, c } = selection
+    r -= 1
+    return r >= 0 && !grid[r][c].black ? { r, c } : null
+  }
+}
+
 let firstOfType = (grid: Grid, mode: InputMode): CellRef | null => {
   return (
     grid
@@ -87,6 +102,22 @@ let firstOfType = (grid: Grid, mode: InputMode): CellRef | null => {
   )
 }
 
+let lastOfType = (grid: Grid, mode: InputMode): CellRef | null => {
+  return (
+    grid
+      .flatMap((row, r) => row.map((cell, c) => ({ ...cell, r, c })))
+      .reverse()
+      .filter(cell => !cell.black)
+      .find(cell => cell.parents?.[mode] != null) || null
+  )
+}
+
+/**
+ * Move to the next cell in the current mode
+ * - If the next cell is out out of bounds or blank, move to the next clue
+ * - If no more clues exist in this mode, switch the mode and move to the
+ *   first clue
+ */
 export let nextCell = (
   grid: Grid,
   mode: InputMode,
@@ -104,6 +135,25 @@ export let nextCell = (
   mode = invert(mode)
   let firstOfOtherType = firstOfType(grid, mode)
   return [mode, firstOfOtherType!]
+}
+
+export let prevCell = (
+  grid: Grid,
+  mode: InputMode,
+  clues: Clues,
+  selection: CellRef
+): [InputMode, CellRef] => {
+  if (noEmptySpaces(grid)) return [mode, selection]
+
+  let adjacentCell = tryMoveBackOnce(grid, mode, selection)
+  if (adjacentCell) return [mode, adjacentCell]
+
+  let prevWordCell = moveToPrev(grid, mode, clues, selection)
+  if (prevWordCell) return [mode, prevWordCell]
+
+  mode = invert(mode)
+  let lastOfOtherType = lastOfType(grid, mode)
+  return [mode, lastOfOtherType!]
 }
 
 export let moveToNext = (

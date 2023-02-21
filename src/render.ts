@@ -73,12 +73,16 @@ let renderPuzzle = (state: State, block: Block) => {
           style = style.underline
         }
 
+        let wsStyle = style.reset
         if (inWord) {
           style = style.bgGrey
+          wsStyle = wsStyle.bgGrey
         }
 
         let text =
-          ' ' + style(cell.value || ' ') + ((otherFocused && '*') || ' ')
+          wsStyle(' ') +
+          style(cell.value || ' ') +
+          wsStyle(otherFocused ? '*' : ' ')
 
         output.push(text)
       }
