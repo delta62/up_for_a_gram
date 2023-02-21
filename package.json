@@ -1,19 +1,24 @@
 {
   "name": "crosso",
   "version": "1.0.0",
-  "description": "",
+  "description": "downforacross.com CLI client",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "start": "tsc --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": "./dist/index.js",
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@reduxjs/toolkit": "^1.9.2",
     "chalk": "^4.0.0",
     "printable-characters": "^1.0.42",
-    "socket.io-client": "^2.0.0"
+    "redux": "^4.2.1",
+    "socket.io-client": "^2.0.0",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@types/node": "^18.14.0",

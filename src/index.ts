@@ -1,101 +1,60 @@
-import io from 'socket.io-client'
+import { onKeyPress } from './input'
+import { userId } from './auth'
 import render from './render'
-import { Game, Event, updateGame, updateGameInput } from './game-state'
-import { getKey } from './input'
+import log from './log'
+import { connect } from './websocket'
+import createStore from './store'
+import {
+  keyPressToAction,
+  gameEventToAction,
+  localActionToRemoteAction,
+} from './mappers'
 
-const SOCKET_HOST = 'https://api.foracross.com'
-export const USER_ID = '84c2e26'
-export const GAME_ID = '2897785-joct'
+let main = async (gameId: string) => {
+  log.info('hello world')
 
-export let emit = <T>(socket: unknown, ...args: any[]): Promise<T> => {
-  return new Promise(resolve => {
-    ;(socket as any).emit(...args, (data: T) => {
-      resolve(data)
-    })
+  let uid = await userId()
+  let client = await connect(gameId)
+  let store = createStore()
+
+  onKeyPress(key => {
+    let state = store.getState()
+    let actions = keyPressToAction(state, key)
+    actions.forEach(a => store.dispatch(a))
+
+    let remoteActions = localActionToRemoteAction(actions, uid, gameId)
+    remoteActions.forEach(a => client.emit(a))
   })
+
+  client.onGameEvent(event => {
+    let state = store.getState()
+    let action = gameEventToAction(event, state)
+    store.dispatch(action)
+  })
+
+  // Sync all events so far prior to hooking up renders to avoid useless paints
+  let initEvents = await client.syncAllEvents()
+  initEvents.forEach(event => {
+    let state = store.getState()
+    let action = gameEventToAction(event, state)
+    store.dispatch(action)
+  })
+
+  store.subscribe(() => {
+    let state = store.getState()
+    render(state)
+  })
+
+  render(store.getState())
 }
 
-let main = async () => {
-  let upgrade = false
-  let transports = ['websocket']
-  let socket = io(SOCKET_HOST, { upgrade, transports })
-  let game: Game = null as any
-
-  getKey(key => {
-    game = updateGameInput(socket, game, key)
-    render(game)
-  })
-
-  socket.on('connect', async () => {
-    console.log('ws connected')
-
-    await emit(socket, 'join_game', GAME_ID)
-    console.log(`joined game ${GAME_ID}`)
-
-    let result = await emit<Event[]>(socket, 'sync_all_game_events', GAME_ID)
-    for (let event of result) {
-      game = updateGame(game!, event)
-    }
-
-    render(game)
-  })
-
-  socket.on('error', (...args: any[]) => {
-    console.log('error', args)
-  })
-
-  socket.on('connect_timeout', (err: any) => {
-    console.error(err)
-  })
-
-  socket.on('connect_error', (err: any) => {
-    console.error(err)
-  })
-
-  socket.on('disconnect', () => {
-    console.log('disconnected')
-  })
-
-  socket.on('reconnect', () => {
-    console.log('reconnect')
-  })
-
-  socket.on('reconnnect_attempt', () => {
-    console.log('reconnect_attempt')
-  })
-
-  socket.on('reconnecting', () => {
-    console.log('reconnecting')
-  })
-
-  socket.on('reconnect_error', () => {
-    console.log('reconnect_error')
-  })
-
-  socket.on('reconnect_failed', () => {
-    console.log('reconnect_failed')
-  })
-
-  socket.on('ping', () => {
-    // console.debug("[ws ping]", Date.now());
-  })
-
-  socket.on('pong', () => {
-    // console.debug("[ws pong]", Date.now());
-  })
-
-  socket.on('room_event', (event: any) => {
-    console.log('room event', event)
-  })
-
-  socket.on('game_event', (event: Event) => {
-    game = updateGame(game!, event)
-    render(game)
-  })
-
-  socket.connect()
+let gameId = process.argv.at(2)
+if (!gameId) {
+  console.error(`usage: ${process.argv[1]} <game_id>`)
+  process.exit(1)
 }
 
-main()
-  .catch(err => console.error(err))
-  .then(() => console.log('done'))
+main(gameId).catch(err => {
+  log.error(err)
+  console.error(err)
+})

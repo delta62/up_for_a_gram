@@ -1,5 +1,6 @@
-import { dimensions, moveTo } from './term'
-import { first, strlen } from 'printable-characters'
+import { clearToScreenEnd, dimensions, moveTo } from './term'
+import { strlen } from 'printable-characters'
+import chalk from 'chalk'
 
 export type Alignment = 'start' | 'middle' | 'end'
 
@@ -27,9 +28,30 @@ export let writeLine = (str: string, block: Block) => {
   block.buffer.push(str)
 }
 
-export let render = (block: Block) => {
+export interface RenderOpts {
+  clear: boolean
+  wrap: boolean
+}
+
+let wrap = (text: string, width: number): string[] => {
+  if (text.length <= width) return [text]
+
+  let ret: string[] = []
+  for (let i = 0; i < text.length; i += width) {
+    ret.push(text.substring(i, width))
+  }
+
+  return ret
+}
+
+export let render = (block: Block, opts?: Partial<RenderOpts>) => {
+  process.stdout.write(chalk.reset(''))
+
   let screen = dimensions()
   let lines = block.buffer
+  if (opts?.wrap) {
+    lines = wrap(lines.join(' '), screen.width)
+  }
 
   let cursorY: number
   switch (block.valign) {
@@ -40,23 +62,30 @@ export let render = (block: Block) => {
       cursorY = Math.floor((screen.height - lines.length) / 2)
       break
     case 'end':
-      cursorY = screen.height - 1
+      if (block.height) {
+        cursorY = screen.height - block.height
+      } else {
+        cursorY = screen.height - lines.length
+      }
       break
   }
 
+  if (opts?.clear) {
+    moveTo(0, cursorY)
+    clearToScreenEnd()
+  }
+
   for (let line of lines) {
-    let charWidth = strlen(line)
     let startX: number
     if (block.halign === 'middle') {
-      startX = Math.floor((screen.width - charWidth) / 2)
+      let charWidth = strlen(line)
+      startX = Math.max(Math.floor((screen.width - charWidth) / 2), 0)
     } else {
       startX = 1
     }
 
-    let availWidth = screen.width - startX
-
     moveTo(startX, cursorY)
-    console.log(first(line, availWidth))
+    process.stdout.write(line)
     cursorY += 1
   }
 }
