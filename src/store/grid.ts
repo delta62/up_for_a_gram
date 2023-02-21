@@ -1,7 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 import { GridCell } from '../dfac-api'
 import { check, createGame, reveal, setCell, updateCell } from './actions'
-import log from '../log'
 
 type CellState =
   | 'verified' // Correct and has been checked
@@ -73,7 +72,8 @@ let grid = createReducer<GridState>(DEFAULT_STATE, builder => {
         return
       }
 
-      state.cells[r][c].value = value
+      cell.state = action.payload.correct ? 'correct' : 'default'
+      cell.value = value
     })
 })
 

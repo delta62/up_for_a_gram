@@ -1,6 +1,6 @@
 import chalk from 'chalk'
 import { Grid } from './dfac-api'
-import { State } from './store'
+import { getSolved, State } from './store'
 import { clear, hideCursor } from './term'
 import { Block, block, render as uiRender, writeLine } from './ui'
 
@@ -9,8 +9,13 @@ let render = (state: State) => {
   hideCursor()
 
   let header = block({ valign: 'start', halign: 'middle' })
-  writeLine(state.game.title.trim(), header)
-  writeLine(state.game.author.trim(), header)
+  if (getSolved(state)) {
+    writeLine(chalk.green(` ${state.game.title.trim()}`), header)
+    writeLine(chalk.green(state.game.author.trim()), header)
+  } else {
+    writeLine(state.game.title.trim(), header)
+    writeLine(state.game.author.trim(), header)
+  }
   uiRender(header)
 
   let { r, c } = state.selection
@@ -31,6 +36,7 @@ let render = (state: State) => {
 
 let renderPuzzle = (state: State, block: Block) => {
   let { width, height } = state.grid
+  let isSolved = getSolved(state)
 
   printHead(state.grid.cells, width, block)
 
@@ -51,10 +57,13 @@ let renderPuzzle = (state: State, block: Block) => {
         )
         let correct = cell.state === 'verified'
         let incorrect = cell.state === 'incorrect'
+        let revealed = cell.state === 'revealed'
         let selectedWord = selectedCell.parents?.[state.mode]
         let inWord = cell.parents?.[state.mode] === selectedWord
 
         let style =
+          (isSolved && chalk.green) ||
+          (revealed && chalk.green) ||
           (selected && chalk.yellow) ||
           (correct && chalk.blue) ||
           (incorrect && chalk.red) ||

@@ -49,4 +49,6 @@ export {
   updatePlayerCursor,
 } from './actions'
 
+export { getSolved } from './selectors'
+
 export default createStore
