@@ -3,7 +3,7 @@ import { createSelector } from '@reduxjs/toolkit'
 import { zip } from '../util'
 import { CellRef } from '../dfac-api'
 
-let getSolution = (state: State) => state.solution
+export let getSolution = (state: State) => state.solution
 let getCells = (state: State) => state.grid.cells
 let getSelection = (state: State) => state.selection
 let getMode = (state: State) => state.mode

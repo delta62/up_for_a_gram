@@ -12,6 +12,7 @@ import { KeyPressAction } from './input'
 import {
   check,
   createGame,
+  getSolution,
   reveal,
   State,
   updateCell,
@@ -56,7 +57,9 @@ export let gameEventToAction = (event: GameEvent, state: State) => {
     case 'check':
       return check({ scope: event.params.scope })
     case 'reveal':
-      return reveal({ scope: event.params.scope })
+      let solution = getSolution(state)
+      let { scope } = event.params
+      return reveal({ scope, solution })
     default:
       throw new Error('not implemented ' + (event as any).type)
   }

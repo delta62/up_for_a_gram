@@ -61,6 +61,7 @@ let grid = createReducer<GridState>(DEFAULT_STATE, builder => {
     .addCase(reveal, (state, action) => {
       for (let { r, c } of action.payload.scope) {
         state.cells[r][c].state = 'revealed'
+        state.cells[r][c].value = action.payload.solution[r][c]
       }
     })
     .addCase(setCell, (state, action) => {

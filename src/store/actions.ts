@@ -36,7 +36,9 @@ export interface Check {
   scope: CellRef[]
 }
 
-export type Reveal = Check
+export interface Reveal extends Check {
+  solution: string[][]
+}
 
 export let createGame = createAction<CreateGame>('CREATE_GAME')
 export let updateCell = createAction<UpdateCell>('UPDATE_CELL')

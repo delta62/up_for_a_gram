@@ -15,6 +15,7 @@ import {
   setMode,
   switchMode,
   State,
+  getSolution,
   getCellScope,
   getPuzzleScope,
   getWordScope,
@@ -32,6 +33,7 @@ export let keyPressToAction = (state: State, key: Key) => {
   let nextMode: InputMode
   let nextSelection: CellRef
   let scope: CellRef[]
+  let solution: string[][]
 
   switch (key) {
     case 'up':
@@ -92,14 +94,17 @@ export let keyPressToAction = (state: State, key: Key) => {
       scope = getCellScope(state)
       return [startCheck({ scope })]
     case 'reveal_puzzle':
+      solution = getSolution(state)
       scope = getPuzzleScope(state)
-      return [startReveal({ scope })]
+      return [startReveal({ scope, solution })]
     case 'reveal_word':
+      solution = getSolution(state)
       scope = getWordScope(state)
-      return [startReveal({ scope })]
+      return [startReveal({ scope, solution })]
     case 'reveal_cell':
+      solution = getSolution(state)
       scope = getCellScope(state)
-      return [startReveal({ scope })]
+      return [startReveal({ scope, solution })]
     default:
       cell = state.selection
       value = key.key.toUpperCase()

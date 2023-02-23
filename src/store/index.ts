@@ -57,6 +57,7 @@ export {
   getCellScope,
   getPuzzleScope,
   getWordScope,
+  getSolution,
   getSolved,
 } from './selectors'
 
