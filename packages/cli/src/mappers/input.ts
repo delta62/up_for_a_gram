@@ -23,6 +23,7 @@ import {
   startReveal,
   startCheck,
 } from '../store'
+import grid from '../store/grid'
 
 /**
  * Map key press events to store actions
@@ -34,6 +35,7 @@ export let keyPressToAction = (state: State, key: Key) => {
   let nextSelection: CellRef
   let scope: CellRef[]
   let solution: string[][]
+  let correct: boolean
 
   switch (key) {
     case 'up':
@@ -57,17 +59,25 @@ export let keyPressToAction = (state: State, key: Key) => {
     case 'backspace':
       cell = state.selection
       value = ''
-      ;[nextMode, nextSelection] = prevCell(
-        state.grid.cells,
-        state.mode,
-        state.clues,
-        cell
-      )
-      return [
-        setCell({ cell, value: '', correct: false }),
-        moveCursor({ cell: nextSelection }),
-        setMode(nextMode),
-      ]
+      correct = false
+      let ret: (
+        | ReturnType<typeof setMode>
+        | ReturnType<typeof moveCursor>
+        | ReturnType<typeof setCell>
+      )[] = [setCell({ cell, value, correct })]
+
+      let lastValue = state.grid.cells[cell.r][cell.c].value
+      if (lastValue) {
+        ;[nextMode, nextSelection] = prevCell(
+          state.grid.cells,
+          state.mode,
+          state.clues,
+          cell
+        )
+        ret.push(moveCursor({ cell: nextSelection }))
+        ret.push(setMode(nextMode))
+      }
+      return ret
     case 'next':
       nextSelection = moveToNext(
         state.grid.cells,
@@ -114,7 +124,7 @@ export let keyPressToAction = (state: State, key: Key) => {
         state.clues,
         cell
       )
-      let correct = state.solution[cell.r][cell.c] === value
+      correct = state.solution[cell.r][cell.c] === value
       return [
         setCell({ cell, value, correct }),
         moveCursor({ cell: nextSelection }),
