@@ -1,12 +1,15 @@
 $bg: var(--bg);
+$bg-secondary: var(--bg-secondary);
 $fg: var(--fg);
 
 :root {
   --bg: #efefef;
+  --bg-secondary: #ccc;
   --fg: #333;
 
   @media (prefers-color-scheme: dark) {
     --bg: #111;
+    --bg-secondary: #333;
     --fg: #eee;
   }
 }

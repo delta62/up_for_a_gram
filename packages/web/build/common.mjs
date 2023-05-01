@@ -34,6 +34,9 @@ export let buildOptions = ({ isProduction, plugins = [] }) => {
     minify: isProduction,
     sourcemap: !isProduction,
     outdir: 'dist',
+    define: {
+      PRODUCTION: JSON.stringify(isProduction),
+    },
     plugins: [
       clean({
         patterns: ['./dist/*'],
@@ -50,7 +53,9 @@ export let buildOptions = ({ isProduction, plugins = [] }) => {
         watch,
       }),
       sassPlugin({
-        transform: postcssModules({}),
+        transform: postcssModules({
+          localsConvention: 'camelCaseOnly',
+        }),
         loadPaths: ['styles'],
       }),
       typeCheck.typecheckPlugin({ watch, logger }),

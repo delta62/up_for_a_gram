@@ -1,0 +1,47 @@
+@use 'colors';
+
+.clue-nav {
+  align-items: center;
+  background: colors.$bg-secondary;
+  cursor: default;
+  padding: 0.8rem 1.2rem;
+}
+
+@mixin arrow {
+  border: 3px solid transparent;
+  content: '';
+  cursor: pointer;
+  display: inline-block;
+  height: 0.9rem;
+  width: 0.9rem;
+}
+
+.arrow-left {
+  @include arrow;
+  border-left: 3px solid currentColor;
+  border-top: 3px solid currentColor;
+  transform: rotate(-45deg);
+}
+
+.arrow-right {
+  @include arrow;
+  border-right: 3px solid currentColor;
+  border-top: 3px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.location {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  font-weight: bold;
+  justify-content: center;
+  line-height: 1rem;
+  margin: 0 1rem;
+  text-transform: uppercase;
+}
+
+.clue {
+  flex: 1 0 0;
+}
