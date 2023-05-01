@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useResize, ResizeArgs } from '@hooks'
+import { useResize } from '@hooks'
 
 const CELL_SIZE = 40
 const NUM_MARGIN = 3
@@ -15,35 +15,25 @@ interface Cell {
   num?: number
 }
 
-interface GridState {
-  cells: Cell[][]
-  translateX: number
-  translateY: number
-  scale: number
-}
+type GridState = Cell[][]
 
-let testState: GridState = {
-  cells: [
-    [
-      { flags: CellFlags.Black },
-      { flags: CellFlags.None, num: 1 },
-      { flags: CellFlags.None, num: 2 },
-    ],
-    [
-      { flags: CellFlags.None, num: 3 },
-      { flags: CellFlags.Black },
-      { flags: CellFlags.None },
-    ],
-    [
-      { flags: CellFlags.None, num: 4 },
-      { flags: CellFlags.None },
-      { flags: CellFlags.Black },
-    ],
+let testState: GridState = [
+  [
+    { flags: CellFlags.Black },
+    { flags: CellFlags.None, num: 1 },
+    { flags: CellFlags.None, num: 2 },
   ],
-  translateX: 0,
-  translateY: 0,
-  scale: 1,
-}
+  [
+    { flags: CellFlags.None, num: 3 },
+    { flags: CellFlags.Black },
+    { flags: CellFlags.None },
+  ],
+  [
+    { flags: CellFlags.None, num: 4 },
+    { flags: CellFlags.None },
+    { flags: CellFlags.Black },
+  ],
+]
 
 let render = (canvas: HTMLCanvasElement, state: GridState) => {
   let ctx = canvas.getContext('2d')!
@@ -51,15 +41,15 @@ let render = (canvas: HTMLCanvasElement, state: GridState) => {
   ctx.font = 'Arial'
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-  let width = state.cells[0].length
-  let height = state.cells.length
+  let width = state[0].length
+  let height = state.length
 
   for (let row = 0; row < height; row++) {
     let y = CELL_SIZE * row + 1
 
     for (let col = 0; col < width; col++) {
       let x = CELL_SIZE * col + 1
-      let cell = state.cells[row][col]
+      let cell = state[row][col]
 
       if (cell.flags & CellFlags.Black) {
         ctx.fillStyle = '#000'
@@ -77,15 +67,21 @@ let render = (canvas: HTMLCanvasElement, state: GridState) => {
       }
     }
   }
-  ctx.scale(state.scale, state.scale)
 }
 
-let zoom = (state: GridState, amount: number) => {
-  if (amount < 0) {
-    state.scale = 0.9
+let zoom = (ctx: CanvasRenderingContext2D, amount: number) => {
+  let t = ctx.getTransform()
+  let currentScale = t.a
+  let newScale
+
+  if (amount > 0) {
+    newScale = Math.min(+2.0, currentScale + 0.1)
   } else {
-    state.scale = 1.1
+    newScale = Math.max(0.5, currentScale - 0.1)
   }
+
+  let newTransform = new DOMMatrix([newScale, t.b, t.c, newScale, t.e, t.f])
+  ctx.setTransform(newTransform)
 }
 
 export let Grid = () => {
@@ -95,7 +91,7 @@ export let Grid = () => {
     if (!ref.current) return
 
     let onWheel = (event: WheelEvent) => {
-      zoom(testState, event.deltaY)
+      zoom(ref.current?.getContext('2d')!, event.deltaY)
       render(ref.current!, testState)
     }
 
