@@ -1,7 +1,19 @@
-import { State } from './index'
 import { createSelector } from '@reduxjs/toolkit'
-import { zip } from '../util'
-import { CellRef } from '../dfac-api'
+import { CellRef } from 'api'
+import { State } from './index'
+
+export type Selector<T> = (state: State) => T
+
+export let zip = <T, U>(xs: T[], ys: U[]): [T, U][] => {
+  let min = Math.min(xs.length, ys.length)
+  let ret = new Array(min)
+
+  for (let i = 0; i < min; i++) {
+    ret.push([xs[i], ys[i]])
+  }
+
+  return ret
+}
 
 export let getSolution = (state: State) => state.solution
 let getCells = (state: State) => state.grid.cells
@@ -16,11 +28,15 @@ let isSolved = (solution: Solution, cells: Cells) =>
     ([expected, actual]) => actual.black || actual.value === expected
   )
 
-export let getSolved = createSelector(getSolution, getCells, isSolved)
+export let getSolved: Selector<boolean> = createSelector(
+  getSolution,
+  getCells,
+  isSolved
+)
 
 export let getClueSolved = (state: State, { r, c }: CellRef): boolean => {
   let { mode, grid } = state
-  let cell = grid.cells[r][c]
+  let cell = grid.cells[r]![c]!
   let clueNum = cell.parents?.[mode]!
 
   return grid.cells
@@ -29,14 +45,17 @@ export let getClueSolved = (state: State, { r, c }: CellRef): boolean => {
     .every(cell => !!cell.value)
 }
 
-export let getCellScope = createSelector(getSelection, cell => [cell])
+export let getCellScope: Selector<[CellRef]> = createSelector(
+  getSelection,
+  cell => [cell]
+)
 
-export let getWordScope = createSelector(
+export let getWordScope: Selector<CellRef[]> = createSelector(
   getCells,
   getSelection,
   getMode,
   (cells, cell, mode) => {
-    let clueNum = cells[cell.r][cell.c].parents?.[mode]!
+    let clueNum = cells[cell.r]![cell.c]!.parents?.[mode]!
 
     return cells
       .flatMap((row, r) => row.map((cell, c) => ({ ...cell, r, c })))
@@ -45,6 +64,9 @@ export let getWordScope = createSelector(
   }
 )
 
-export let getPuzzleScope = createSelector(getCells, cells => {
-  return cells.flatMap((row, r) => row.map((_, c) => ({ r, c })))
-})
+export let getPuzzleScope: Selector<CellRef[]> = createSelector(
+  getCells,
+  cells => {
+    return cells.flatMap((row, r) => row.map((_, c) => ({ r, c })))
+  }
+)

@@ -22,8 +22,7 @@ import {
   setCell,
   startReveal,
   startCheck,
-} from '../store'
-import grid from '../store/grid'
+} from 'store'
 
 /**
  * Map key press events to store actions
@@ -66,7 +65,7 @@ export let keyPressToAction = (state: State, key: Key) => {
         | ReturnType<typeof setCell>
       )[] = [setCell({ cell, value, correct })]
 
-      let lastValue = state.grid.cells[cell.r][cell.c].value
+      let lastValue = state.grid.cells[cell.r]![cell.c]!.value
       if (lastValue) {
         ;[nextMode, nextSelection] = prevCell(
           state.grid.cells,
@@ -124,7 +123,7 @@ export let keyPressToAction = (state: State, key: Key) => {
         state.clues,
         cell
       )
-      correct = state.solution[cell.r][cell.c] === value
+      correct = state.solution[cell.r]![cell.c]! === value
       return [
         setCell({ cell, value, correct }),
         moveCursor({ cell: nextSelection }),

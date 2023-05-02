@@ -1,7 +1,7 @@
 import { CellRef, Clues, Grid, InputMode } from './dfac-api'
 
 let selectable = (grid: Grid, { r, c }: CellRef): boolean => {
-  return !grid[r][c].black
+  return !grid[r]![c]!.black
 }
 
 interface Dimensions {
@@ -16,7 +16,7 @@ interface SelectOpts {
 
 let select = (opts: SelectOpts) => (grid: Grid, from: CellRef) => {
   let { increment, until } = opts
-  let width = grid[0].length
+  let width = grid[0]!.length
   let height = grid.length
   let pointer = from
 
@@ -65,15 +65,15 @@ let tryMoveOnce = (
   selection: CellRef
 ): CellRef | null => {
   if (mode === 'across') {
-    let width = grid[0].length
+    let width = grid[0]!.length
     let { r, c } = selection
     c += 1
-    return c < width && !grid[r][c].black ? { r, c } : null
+    return c < width && !grid[r]![c]!.black ? { r, c } : null
   } else {
     let height = grid.length
     let { r, c } = selection
     r += 1
-    return r < height && !grid[r][c].black ? { r, c } : null
+    return r < height && !grid[r]![c]!.black ? { r, c } : null
   }
 }
 
@@ -85,11 +85,11 @@ let tryMoveBackOnce = (
   if (mode === 'across') {
     let { r, c } = selection
     c -= 1
-    return c >= 0 && !grid[r][c].black ? { r, c } : null
+    return c >= 0 && !grid[r]![c]!.black ? { r, c } : null
   } else {
     let { r, c } = selection
     r -= 1
-    return r >= 0 && !grid[r][c].black ? { r, c } : null
+    return r >= 0 && !grid[r]![c]!.black ? { r, c } : null
   }
 }
 
@@ -163,7 +163,7 @@ export let moveToNext = (
   selection: CellRef
 ): CellRef => {
   let { r, c } = selection
-  let origin = grid[r][c].parents?.[mode]!
+  let origin = grid[r]![c]!.parents?.[mode]!
   let target = clues[mode].map(c => !!c).findIndex((c, i) => c && i > origin!)
 
   if (target === -1) {
@@ -184,7 +184,7 @@ export let moveToPrev = (
   selection: CellRef
 ): CellRef => {
   let { r, c } = selection
-  let origin = grid[r][c].parents?.[mode]!
+  let origin = grid[r]![c]!.parents?.[mode]!
   let target = clues[mode].reduce((acc, clue, i) => {
     if (!!clue && i < origin) return i
     return acc

@@ -1,5 +1,4 @@
-import { CellRef } from '../dfac-api'
-import { Rgb } from '../color'
+import { CellRef, Rgb } from 'api'
 import { createReducer } from '@reduxjs/toolkit'
 import {
   updatePlayerColor,
@@ -30,20 +29,20 @@ let players = createReducer(DEFAULT_STATE, builder => {
     .addCase(updatePlayerCursor, (state, action) => {
       let { playerId, cell } = action.payload
       state[playerId] ??= { ...DEFAULT_PLAYER }
-      state[playerId].id = playerId
-      state[playerId].cursor = cell
+      state[playerId]!.id = playerId
+      state[playerId]!.cursor = cell
     })
     .addCase(updatePlayerColor, (state, action) => {
       let { playerId, color } = action.payload
       state[playerId] ??= { ...DEFAULT_PLAYER }
-      state[playerId].id = playerId
-      state[playerId].color = color
+      state[playerId]!.id = playerId
+      state[playerId]!.color = color
     })
     .addCase(updatePlayerName, (state, action) => {
       let { playerId, name } = action.payload
       state[playerId] ??= { ...DEFAULT_PLAYER }
-      state[playerId].id = playerId
-      state[playerId].name = name
+      state[playerId]!.id = playerId
+      state[playerId]!.name = name
     })
 })
 

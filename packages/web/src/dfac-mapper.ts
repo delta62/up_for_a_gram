@@ -10,7 +10,6 @@ import {
   SendableProps,
   SetCellEvent,
 } from 'api'
-import { KeyPressAction } from './input'
 import {
   check,
   createGame,
@@ -22,11 +21,12 @@ import {
   updatePlayerCursor,
   updatePlayerName,
 } from 'store'
-import { v4 as uuid4 } from 'uuid'
 
 const SERVER_TIMESTAMP = {
   '.sv': 'timestamp',
 }
+
+let uuid4 = () => self.crypto.randomUUID()
 
 export let gameEventToAction = (event: GameEvent, state: State) => {
   let playerId: string
@@ -68,7 +68,7 @@ export let gameEventToAction = (event: GameEvent, state: State) => {
 }
 
 export let localActionToRemoteAction = (
-  actions: KeyPressAction,
+  actions: any[],
   userId: string,
   gameId: string
 ): SendableGameEvent[] => {

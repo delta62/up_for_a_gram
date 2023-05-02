@@ -1,5 +1,5 @@
 import { createGame, moveCursor } from './actions'
-import { CellRef } from '../dfac-api'
+import { CellRef } from 'api'
 import { createReducer } from '@reduxjs/toolkit'
 
 export type SelectionState = CellRef

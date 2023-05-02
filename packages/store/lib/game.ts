@@ -1,5 +1,5 @@
 import { createGame } from './actions'
-import { GameInfo } from '../dfac-api'
+import { GameInfo } from 'api'
 import { createReducer } from '@reduxjs/toolkit'
 
 export type GameState = GameInfo

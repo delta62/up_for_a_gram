@@ -17,9 +17,11 @@
   ],
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.2",
+    "api": "workspace:*",
     "chalk": "^4.0.0",
     "printable-characters": "^1.0.42",
     "socket.io-client": "^2.0.0",
+    "store": "workspace:*",
     "uuid": "^9.0.0",
     "winston": "^3.8.2"
   },

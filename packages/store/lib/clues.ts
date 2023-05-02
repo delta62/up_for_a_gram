@@ -3,7 +3,7 @@ import { createGame } from './actions'
 
 export type Clue = string | null
 
-interface CluesState {
+export interface CluesState {
   down: Clue[]
   across: Clue[]
 }

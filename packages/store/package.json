@@ -1,18 +1,19 @@
 {
-  "name": "api",
+  "name": "store",
   "version": "1.0.0",
   "description": "",
   "private": true,
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
   "scripts": {
-    "build": "tsc",
-    "start": "tsc --watch"
+    "build": "tsc"
   },
-  "author": "Sam Noedel <sam.noedel@gmail.com>",
-  "license": "MIT",
-  "devDependencies": {
-    "typescript": "^4.9.5"
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.9.2",
+    "api": "workspace:*"
   },
   "prettier": {
     "semi": false,
@@ -20,7 +21,7 @@
     "bracketSpacing": true,
     "arrowParens": "avoid"
   },
-  "dependencies": {
-    "socket.io-client": "^2.0.0"
+  "devDependencies": {
+    "typescript": "^4.9.5"
   }
 }

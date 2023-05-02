@@ -1,4 +1,4 @@
-import { SolutionRow } from '../dfac-api'
+import { SolutionRow } from 'api'
 import { createReducer } from '@reduxjs/toolkit'
 import { createGame } from './actions'
 

@@ -1,5 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit'
-import { GridCell } from '../dfac-api'
+import { GridCell } from 'api'
 import { check, createGame, reveal, setCell, updateCell } from './actions'
 
 type CellState =
@@ -25,7 +25,7 @@ let grid = createReducer<GridState>(DEFAULT_STATE, builder => {
   builder
     .addCase(createGame, (_, action) => {
       let grid = action.payload.game.grid
-      let width = grid[0].length
+      let width = grid[0]?.length ?? 0
       let height = grid.length
       let cells = grid.map(row =>
         row.map(cell => ({ ...cell, state: 'default' as const }))
@@ -36,7 +36,7 @@ let grid = createReducer<GridState>(DEFAULT_STATE, builder => {
     .addCase(updateCell, (state, action) => {
       let { r, c } = action.payload.cell
       let { value } = action.payload
-      let cell = state.cells[r][c]
+      let cell = state.cells[r]![c]!
 
       if (['verified', 'revealed'].includes(cell.state)) {
         return
@@ -47,7 +47,7 @@ let grid = createReducer<GridState>(DEFAULT_STATE, builder => {
     })
     .addCase(check, (state, action) => {
       for (let { r, c } of action.payload.scope) {
-        let cell = state.cells[r][c]
+        let cell = state.cells[r]![c]!
         switch (cell.state) {
           case 'default':
             cell.state = 'incorrect'
@@ -60,14 +60,14 @@ let grid = createReducer<GridState>(DEFAULT_STATE, builder => {
     })
     .addCase(reveal, (state, action) => {
       for (let { r, c } of action.payload.scope) {
-        state.cells[r][c].state = 'revealed'
-        state.cells[r][c].value = action.payload.solution[r][c]
+        state.cells[r]![c]!.state = 'revealed'
+        state.cells[r]![c]!.value = action.payload.solution[r]![c]!
       }
     })
     .addCase(setCell, (state, action) => {
       let { r, c } = action.payload.cell
       let { value } = action.payload
-      let cell = state.cells[r][c]
+      let cell = state.cells[r]![c]!
 
       if (['verified', 'revealed'].includes(cell.state)) {
         return

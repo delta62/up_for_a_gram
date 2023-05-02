@@ -2,8 +2,8 @@ import { onKeyPress } from './input'
 import { userId } from './auth'
 import render from './render'
 import log from './log'
-import { connect } from './websocket'
-import createStore from './store'
+import { connect } from 'api'
+import createStore from 'store'
 import {
   keyPressToAction,
   gameEventToAction,

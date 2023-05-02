@@ -41,7 +41,7 @@ let render = (canvas: HTMLCanvasElement, state: GridState) => {
   ctx.font = 'Arial'
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-  let width = state[0].length
+  let width = state[0]!.length
   let height = state.length
 
   for (let row = 0; row < height; row++) {
@@ -49,7 +49,7 @@ let render = (canvas: HTMLCanvasElement, state: GridState) => {
 
     for (let col = 0; col < width; col++) {
       let x = CELL_SIZE * col + 1
-      let cell = state[row][col]
+      let cell = state[row]![col]!
 
       if (cell.flags & CellFlags.Black) {
         ctx.fillStyle = '#000'

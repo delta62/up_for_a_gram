@@ -1,6 +1,6 @@
 import chalk from 'chalk'
 import { Grid } from './dfac-api'
-import { getClueSolved, getSolved, State } from './store'
+import { getClueSolved, getSolved, State } from 'store'
 import { clear, hideCursor } from './term'
 import { Block, block, render as uiRender, writeLine } from './ui'
 import log from './log'
@@ -27,7 +27,7 @@ let render = (state: State) => {
 
   let { r, c } = state.selection
 
-  let clue = state.grid.cells[r][c].parents?.[state.mode]
+  let clue = state.grid.cells[r]![c]!.parents?.[state.mode]
   let clueText = clue ? state.clues[state.mode][clue]! : ''
 
   if (clueText) {
@@ -59,12 +59,12 @@ let renderPuzzle = (state: State, block: Block) => {
     let { selection } = state
 
     for (let c in row) {
-      let cell = row[c]
+      let cell = row[parseInt(c, 10)]!
       if (cell.black) {
         output.push('███')
       } else {
         let selected = selection.r === r && selection.c === parseInt(c)
-        let selectedCell = state.grid.cells[selection.r][selection.c]
+        let selectedCell = state.grid.cells[selection.r]![selection.c]!
         let otherFocused = Object.values(state.players).find(
           p => r === p.cursor.r && parseInt(c) === p.cursor.c
         )
@@ -117,7 +117,7 @@ let printHead = (grid: Grid, width: number, block: Block) => {
   let chars = ['┌']
 
   let midChars = Array.from({ length: width }, (_, i) => {
-    let num = grid[0][i].number
+    let num = grid[0]![i]!.number
     let cellNum = numberToSubscript(num, 3, '─')
 
     if (i === width - 1) {
@@ -151,7 +151,7 @@ let printTail = (width: number, block: Block) => {
 let printDivider = (grid: Grid, width: number, row: number, block: Block) => {
   let chars = ['├']
   let midChars = Array.from({ length: width }, (_, i) => {
-    let num = grid[row + 1][i].number
+    let num = grid[row + 1]![i]!.number
 
     if (i === width - 1) {
       return numberToSubscript(num, 3, '─')
