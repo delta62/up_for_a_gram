@@ -10,8 +10,8 @@ export let useSocket = (gameId: string, onEvent: OnEventCallback) => {
         conn.onGameEvent(onEvent)
         return conn
       })
-      .then(async conn => {
-        await conn.syncAllEvents()
+      .then(conn => {
+        conn.syncAllEvents()
         return conn
       })
 

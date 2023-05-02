@@ -46,8 +46,12 @@ export {
 } from './actions'
 
 export {
+  RenderCell,
+  RenderCellFlags,
+  GridState,
   getClueSolved,
   getCellScope,
+  getGridState,
   getPuzzleScope,
   getWordScope,
   getSolution,

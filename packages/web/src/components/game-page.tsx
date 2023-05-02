@@ -3,17 +3,17 @@ import { ClueNav, Grid } from '@components'
 import { useSocket } from '@hooks'
 import { gameEventToAction } from '../dfac-mapper'
 import { State } from 'store'
+import { useParams } from '@delta62/micro-router'
 import styles from './game-page.module.scss'
-
-export interface Props {
-  gameId: string
-}
 
 let nop = () => {}
 
-export let GamePage = ({ gameId }: Props) => {
-  useSocket(gameId, event => {
-    let store = useStore<State>()
+export let GamePage = () => {
+  let params = useParams()
+  let store = useStore<State>()
+
+  useSocket(params.gameId!, event => {
+    console.log('event', event)
     let action = gameEventToAction(event, store.getState())
     store.dispatch(action)
   })

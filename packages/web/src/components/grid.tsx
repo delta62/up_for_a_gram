@@ -1,45 +1,20 @@
 import { useEffect, useRef } from 'react'
 import { useResize } from '@hooks'
+import { useSelector } from 'react-redux'
+import { GridState, RenderCellFlags, getGridState } from 'store'
 
 const CELL_SIZE = 40
 const NUM_MARGIN = 3
-
-enum CellFlags {
-  None = 0,
-  Black = 1,
-}
-
-interface Cell {
-  flags: CellFlags
-  value?: string
-  num?: number
-}
-
-type GridState = Cell[][]
-
-let testState: GridState = [
-  [
-    { flags: CellFlags.Black },
-    { flags: CellFlags.None, num: 1 },
-    { flags: CellFlags.None, num: 2 },
-  ],
-  [
-    { flags: CellFlags.None, num: 3 },
-    { flags: CellFlags.Black },
-    { flags: CellFlags.None },
-  ],
-  [
-    { flags: CellFlags.None, num: 4 },
-    { flags: CellFlags.None },
-    { flags: CellFlags.Black },
-  ],
-]
 
 let render = (canvas: HTMLCanvasElement, state: GridState) => {
   let ctx = canvas.getContext('2d')!
   ctx.strokeStyle = '#aaa'
   ctx.font = 'Arial'
   ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+  if (state.length === 0) {
+    return
+  }
 
   let width = state[0]!.length
   let height = state.length
@@ -51,7 +26,7 @@ let render = (canvas: HTMLCanvasElement, state: GridState) => {
       let x = CELL_SIZE * col + 1
       let cell = state[row]![col]!
 
-      if (cell.flags & CellFlags.Black) {
+      if (cell.flags & RenderCellFlags.Black) {
         ctx.fillStyle = '#000'
       } else {
         ctx.fillStyle = '#fff'
@@ -86,13 +61,14 @@ let zoom = (ctx: CanvasRenderingContext2D, amount: number) => {
 
 export let Grid = () => {
   let ref = useRef<HTMLCanvasElement>(null)
+  let gridState = useSelector(getGridState)
 
   useEffect(() => {
     if (!ref.current) return
 
     let onWheel = (event: WheelEvent) => {
       zoom(ref.current?.getContext('2d')!, event.deltaY)
-      render(ref.current!, testState)
+      render(ref.current!, gridState)
     }
 
     ref.current.addEventListener('wheel', onWheel)
@@ -109,7 +85,7 @@ export let Grid = () => {
     ref.current!.width = width
     ref.current!.height = height
 
-    render(ref.current!, testState)
+    render(ref.current!, gridState)
   })
 
   return <canvas ref={ref}></canvas>

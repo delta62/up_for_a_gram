@@ -4,7 +4,7 @@ import { GameEvent, SendableGameEvent } from './index'
 const SOCKET_HOST = 'https://api.foracross.com'
 
 export interface Client {
-  syncAllEvents(): Promise<GameEvent[]>
+  syncAllEvents(): Promise<void>
   onGameEvent(callback: (event: GameEvent) => void): void
   emit(event: SendableGameEvent): Promise<void>
   disconnect(): void
@@ -27,7 +27,14 @@ export let connect = (gameId: string): Promise<Client> => {
       await emit(socket, 'join_game', gameId)
 
       resolve({
-        syncAllEvents: () => emit(socket, 'sync_all_game_events', gameId),
+        syncAllEvents: async () => {
+          let events: GameEvent[] = await emit(
+            socket,
+            'sync_all_game_events',
+            gameId
+          )
+          events.forEach(e => onGameEvent?.(e))
+        },
         onGameEvent: callback => (onGameEvent = callback),
         emit: (event: SendableGameEvent) => {
           return emit(socket, 'game_event', event)

@@ -8,9 +8,6 @@ if (!PRODUCTION) {
   )
 }
 
-// Required for socket.io-client for some reason
-;(window as any).global = window
-
 let rootNode = document.getElementById('root')!
 let root = createRoot(rootNode)
 
