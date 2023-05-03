@@ -1,5 +1,11 @@
 @use 'colors';
 
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  src: url('/fonts/lora_variable.ttf') format('opentype');
+}
+
 :global {
   * {
     box-sizing: border-box;

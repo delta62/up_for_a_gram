@@ -18,7 +18,8 @@ export let zip = <T, U>(xs: T[], ys: U[]): [T, U][] => {
 export let getSolution = (state: State) => state.solution
 let getCells = (state: State) => state.grid.cells
 let getSelection = (state: State) => state.selection
-let getMode = (state: State) => state.mode
+let getClues = (state: State) => state.clues
+export let getMode = (state: State) => state.mode
 
 type Solution = ReturnType<typeof getSolution>
 type Cells = ReturnType<typeof getCells>
@@ -100,5 +101,32 @@ export let getGridState: Selector<GridState> = createSelector(
         return { flags, value, num }
       })
     })
+  }
+)
+
+export interface ClueMetadata {
+  number: number
+  direction: 'across' | 'down'
+  text: string
+}
+
+export let getCurrentClue: Selector<ClueMetadata | null> = createSelector(
+  getClues,
+  getSelection,
+  getCells,
+  getMode,
+  (clues, selection, cells, mode) => {
+    let cell = cells[selection.r]?.[selection.c]
+    if (!cell) return null
+
+    let number = cell.parents?.[mode]
+    if (!number) return null
+
+    let text = clues[mode]?.[number]
+    if (!text) return null
+
+    let direction = mode
+
+    return { number, direction, text }
   }
 )

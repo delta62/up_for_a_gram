@@ -50,6 +50,8 @@ export {
   RenderCellFlags,
   GridState,
   getClueSolved,
+  getMode,
+  getCurrentClue,
   getCellScope,
   getGridState,
   getPuzzleScope,

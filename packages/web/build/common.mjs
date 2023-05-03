@@ -53,8 +53,12 @@ export let buildOptions = ({ isProduction, plugins = [] }) => {
         watch,
       }),
       sassPlugin({
+        type: 'css',
+        basedir: 'static',
+        cssImports: false,
         transform: postcssModules({
           localsConvention: 'camelCaseOnly',
+          root: 'static',
         }),
         loadPaths: ['styles'],
       }),

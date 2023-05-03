@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { MouseEvent, useCallback, useEffect, useRef } from 'react'
 import { useResize } from '@hooks'
 import { useSelector } from 'react-redux'
 import { GridState, RenderCellFlags, getGridState } from 'store'
@@ -6,11 +6,20 @@ import { GridState, RenderCellFlags, getGridState } from 'store'
 const CELL_SIZE = 40
 const NUM_MARGIN = 3
 
+let clear = (ctx: CanvasRenderingContext2D) => {
+  ctx.save()
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0)
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+
+  ctx.restore()
+}
+
 let render = (canvas: HTMLCanvasElement, state: GridState) => {
   let ctx = canvas.getContext('2d')!
+  clear(ctx)
   ctx.strokeStyle = '#aaa'
   ctx.font = 'Arial'
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
 
   if (state.length === 0) {
     return
@@ -20,10 +29,10 @@ let render = (canvas: HTMLCanvasElement, state: GridState) => {
   let height = state.length
 
   for (let row = 0; row < height; row++) {
-    let y = CELL_SIZE * row + 1
+    let y = CELL_SIZE * row
 
     for (let col = 0; col < width; col++) {
-      let x = CELL_SIZE * col + 1
+      let x = CELL_SIZE * col
       let cell = state[row]![col]!
 
       if (cell.flags & RenderCellFlags.Black) {
@@ -59,9 +68,34 @@ let zoom = (ctx: CanvasRenderingContext2D, amount: number) => {
   ctx.setTransform(newTransform)
 }
 
+let localCoords = (event: MouseEvent): DOMPoint => {
+  let rect = event.currentTarget.getBoundingClientRect()
+  let x = event.clientX - rect.x
+  let y = event.clientY - rect.y
+
+  return new DOMPoint(x, y)
+}
+
+let coordsToCell = (ctx: CanvasRenderingContext2D, point: DOMPoint) => {
+  let transform = ctx.getTransform().inverse()
+  let p = transform.transformPoint(point)
+  let x = Math.floor(p.x / CELL_SIZE)
+  let y = Math.floor(p.y / CELL_SIZE)
+
+  return { x, y }
+}
+
 export let Grid = () => {
   let ref = useRef<HTMLCanvasElement>(null)
   let gridState = useSelector(getGridState)
+
+  let onClick = useCallback((event: MouseEvent<HTMLCanvasElement>) => {
+    let point = localCoords(event)
+    let ctx = event.currentTarget.getContext('2d')!
+    let { x, y } = coordsToCell(ctx, point)
+
+    console.log('click on cell', x, y)
+  }, [])
 
   useEffect(() => {
     if (!ref.current) return
@@ -88,5 +122,5 @@ export let Grid = () => {
     render(ref.current!, gridState)
   })
 
-  return <canvas ref={ref}></canvas>
+  return <canvas ref={ref} onClick={onClick}></canvas>
 }

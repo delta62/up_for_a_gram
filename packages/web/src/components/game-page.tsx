@@ -5,32 +5,31 @@ import { gameEventToAction } from '../dfac-mapper'
 import { State } from 'store'
 import { useParams } from '@delta62/micro-router'
 import styles from './game-page.module.scss'
-
-let nop = () => {}
+import { useCallback } from 'react'
 
 export let GamePage = () => {
   let params = useParams()
   let store = useStore<State>()
 
   useSocket(params.gameId!, event => {
-    console.log('event', event)
     let action = gameEventToAction(event, store.getState())
     store.dispatch(action)
   })
+
+  let onNext = useCallback(() => {
+    console.log('move to next clue')
+  }, [])
+
+  let onPrev = useCallback(() => {
+    console.log('move to next clue')
+  }, [])
 
   return (
     <>
       <section className={styles.grid}>
         <Grid />
       </section>
-      <ClueNav
-        className={styles.nav}
-        onNext={nop}
-        onPrev={nop}
-        direction="down"
-        num={42}
-        clue="Young Spitter-upper"
-      />
+      <ClueNav className={styles.nav} onNext={onNext} onPrev={onPrev} />
     </>
   )
 }
