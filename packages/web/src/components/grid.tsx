@@ -1,7 +1,13 @@
 import { MouseEvent, useCallback, useEffect, useRef } from 'react'
 import { useResize } from '@hooks'
-import { useSelector } from 'react-redux'
-import { GridState, RenderCellFlags, getGridState } from 'store'
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  GridState,
+  RenderCellFlags,
+  getGridState,
+  Dispatch,
+  moveCursor,
+} from 'store'
 
 const CELL_SIZE = 40
 const NUM_MARGIN = 3
@@ -37,6 +43,8 @@ let render = (canvas: HTMLCanvasElement, state: GridState) => {
 
       if (cell.flags & RenderCellFlags.Black) {
         ctx.fillStyle = '#000'
+      } else if (cell.flags & RenderCellFlags.Selected) {
+        ctx.fillStyle = '#dde'
       } else {
         ctx.fillStyle = '#fff'
       }
@@ -88,14 +96,19 @@ let coordsToCell = (ctx: CanvasRenderingContext2D, point: DOMPoint) => {
 export let Grid = () => {
   let ref = useRef<HTMLCanvasElement>(null)
   let gridState = useSelector(getGridState)
+  let dispatch = useDispatch<Dispatch>()
 
-  let onClick = useCallback((event: MouseEvent<HTMLCanvasElement>) => {
-    let point = localCoords(event)
-    let ctx = event.currentTarget.getContext('2d')!
-    let { x, y } = coordsToCell(ctx, point)
+  let onClick = useCallback(
+    (event: MouseEvent<HTMLCanvasElement>) => {
+      let point = localCoords(event)
+      let ctx = event.currentTarget.getContext('2d')!
+      let { x, y } = coordsToCell(ctx, point)
+      let isBlack = (gridState[y]?.[x]?.flags ?? 0) & RenderCellFlags.Black
 
-    console.log('click on cell', x, y)
-  }, [])
+      if (!isBlack) dispatch(moveCursor({ r: y, c: x }))
+    },
+    [gridState, dispatch]
+  )
 
   useEffect(() => {
     if (!ref.current) return

@@ -21,7 +21,7 @@ let selection = createReducer(DEFAULT_STATE, builder => {
         .filter(cell => !cell.black)
         .map(({ r, c }) => ({ r, c }))[0]
     })
-    .addCase(moveCursor, (_, action) => action.payload.cell)
+    .addCase(moveCursor, (_, action) => action.payload)
 })
 
 export default selection

@@ -74,9 +74,7 @@ export interface UpdatePlayerCursor {
   cell: CellRef
 }
 
-export interface MoveCursor {
-  cell: CellRef
-}
+export type MoveCursor = CellRef
 
 export interface Check {
   scope: CellRef[]

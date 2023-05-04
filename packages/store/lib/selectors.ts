@@ -75,6 +75,7 @@ export let getPuzzleScope: Selector<CellRef[]> = createSelector(
 export enum RenderCellFlags {
   None = 0,
   Black = 1,
+  Selected = 2,
 }
 
 export interface RenderCell {
@@ -87,12 +88,17 @@ export type GridState = RenderCell[][]
 
 export let getGridState: Selector<GridState> = createSelector(
   getCells,
-  rows => {
-    return rows.map(row => {
-      return row.map((cell): RenderCell => {
+  getSelection,
+  (rows, selection) => {
+    return rows.map((row, r) => {
+      return row.map((cell, c): RenderCell => {
         let { value } = cell
         let flags = 0
         let num = cell.number || undefined
+
+        if (r === selection.r && c === selection.c) {
+          flags |= RenderCellFlags.Selected
+        }
 
         if (cell.black) {
           flags |= RenderCellFlags.Black

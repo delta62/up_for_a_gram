@@ -16,10 +16,8 @@ export let ClueNav = (props: Props) => {
       <i className={styles.arrowLeft} onClick={props.onPrev}></i>
       <i className={styles.arrowRight} onClick={props.onNext}></i>
       <span className={styles.location}>
-        <span>
-          {clue?.number ?? ''}
-          {clue?.direction?.substring(0, 1) ?? ''}
-        </span>
+        {clue?.number ?? ''}
+        {clue?.direction?.substring(0, 1) ?? ''}
       </span>
       <span className={styles.clue}>{clue?.text ?? ''}</span>
     </nav>
