@@ -8,6 +8,7 @@ import {
   Dispatch,
   moveCursor,
   switchMode,
+  updateCell,
 } from 'store'
 
 const CELL_SIZE = 40
@@ -26,7 +27,6 @@ let render = (canvas: HTMLCanvasElement, state: GridState) => {
   let ctx = canvas.getContext('2d')!
   clear(ctx)
   ctx.strokeStyle = '#aaa'
-  ctx.font = 'Arial'
 
   if (state.length === 0) {
     return
@@ -58,7 +58,19 @@ let render = (canvas: HTMLCanvasElement, state: GridState) => {
       if (cell.num) {
         ctx.fillStyle = '#000'
         ctx.textBaseline = 'top'
+        ctx.font = '10px Arial'
         ctx.fillText(`${cell.num}`, x + NUM_MARGIN, y + NUM_MARGIN)
+      }
+
+      if (cell.value) {
+        ctx.textBaseline = 'middle'
+        ctx.font = '18px Arial'
+
+        let { width: textWidth } = ctx.measureText(cell.value)
+        let textX = x + CELL_SIZE / 2 - textWidth / 2
+        let textY = y + CELL_SIZE / 2
+
+        ctx.fillText(cell.value, textX, textY)
       }
     }
   }
@@ -110,13 +122,30 @@ export let Grid = () => {
       let isSelectedCell =
         (gridState[y]?.[x]?.flags ?? 0) & RenderCellFlags.Selected
 
+      if (isBlack) return
+
       if (isSelectedCell) {
         dispatch(switchMode())
-      } else if (!isBlack) {
+      } else {
         dispatch(moveCursor({ r: y, c: x }))
       }
+
+      ;(navigator as any).virtualKeyboard?.show()
     },
     [gridState, dispatch]
+  )
+
+  let onKeyUp = useCallback(
+    (event: KeyboardEvent) => {
+      let value = event.key.toUpperCase()
+      if (!/^[A-Z1-9]$/.test(value)) return
+
+      let correct = false
+      let cell = { r: 0, c: 0 }
+
+      dispatch(updateCell({ value, correct, cell }))
+    },
+    [dispatch]
   )
 
   useEffect(() => {
@@ -132,17 +161,29 @@ export let Grid = () => {
     return () => ref.current?.removeEventListener('wheel', onWheel)
   }, [ref.current])
 
-  useResize(() => {
-    let parent = ref.current?.parentNode
-    if (!(parent instanceof Element)) return
+  useEffect(() => {
+    window.addEventListener('keyup', onKeyUp)
+    return () => window.removeEventListener('keyup', onKeyUp)
+  }, [onKeyUp])
 
-    let { width, height } = parent.getBoundingClientRect()
+  useEffect(() => {
+    if (!ref.current) return
+    render(ref.current, gridState)
+  }, [ref.current, gridState])
 
-    ref.current!.width = width
-    ref.current!.height = height
+  useResize(
+    useCallback(() => {
+      let parent = ref.current?.parentNode
+      if (!(parent instanceof Element)) return
 
-    render(ref.current!, gridState)
-  })
+      let { width, height } = parent.getBoundingClientRect()
+
+      ref.current!.width = width
+      ref.current!.height = height
+
+      render(ref.current!, gridState)
+    }, [])
+  )
 
   return <canvas ref={ref} onClick={onClick}></canvas>
 }
