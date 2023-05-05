@@ -7,6 +7,7 @@ import {
   getGridState,
   Dispatch,
   moveCursor,
+  switchMode,
 } from 'store'
 
 const CELL_SIZE = 40
@@ -106,8 +107,14 @@ export let Grid = () => {
       let ctx = event.currentTarget.getContext('2d')!
       let { x, y } = coordsToCell(ctx, point)
       let isBlack = (gridState[y]?.[x]?.flags ?? 0) & RenderCellFlags.Black
+      let isSelectedCell =
+        (gridState[y]?.[x]?.flags ?? 0) & RenderCellFlags.Selected
 
-      if (!isBlack) dispatch(moveCursor({ r: y, c: x }))
+      if (isSelectedCell) {
+        dispatch(switchMode())
+      } else if (!isBlack) {
+        dispatch(moveCursor({ r: y, c: x }))
+      }
     },
     [gridState, dispatch]
   )
