@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback, useEffect, useRef } from 'react'
+import { MouseEvent, useCallback, useEffect, useRef, WheelEvent } from 'react'
 import { useResize } from '@hooks'
 import { useDispatch, useSelector } from 'react-redux'
 import {
@@ -9,6 +9,8 @@ import {
   moveCursor,
   switchMode,
   updateCell,
+  getSelection,
+  getSolution,
 } from 'store'
 
 const CELL_SIZE = 40
@@ -24,13 +26,11 @@ let clear = (ctx: CanvasRenderingContext2D) => {
 }
 
 let render = (canvas: HTMLCanvasElement, state: GridState) => {
-  let ctx = canvas.getContext('2d')!
+  let ctx = canvas.getContext('2d')
+  if (!ctx || state.length === 0) return
+
   clear(ctx)
   ctx.strokeStyle = '#aaa'
-
-  if (state.length === 0) {
-    return
-  }
 
   let width = state[0]!.length
   let height = state.length
@@ -58,13 +58,14 @@ let render = (canvas: HTMLCanvasElement, state: GridState) => {
       if (cell.num) {
         ctx.fillStyle = '#000'
         ctx.textBaseline = 'top'
-        ctx.font = '10px Arial'
+        ctx.font = '56% Arial'
         ctx.fillText(`${cell.num}`, x + NUM_MARGIN, y + NUM_MARGIN)
       }
 
       if (cell.value) {
         ctx.textBaseline = 'middle'
-        ctx.font = '18px Arial'
+        ctx.fillStyle = '#000'
+        ctx.font = '100% Arial'
 
         let { width: textWidth } = ctx.measureText(cell.value)
         let textX = x + CELL_SIZE / 2 - textWidth / 2
@@ -110,8 +111,10 @@ let coordsToCell = (ctx: CanvasRenderingContext2D, point: DOMPoint) => {
 
 export let Grid = () => {
   let ref = useRef<HTMLCanvasElement>(null)
-  let gridState = useSelector(getGridState)
   let dispatch = useDispatch<Dispatch>()
+  let gridState = useSelector(getGridState)
+  let solution = useSelector(getSolution)
+  let selection = useSelector(getSelection)
 
   let onClick = useCallback(
     (event: MouseEvent<HTMLCanvasElement>) => {
@@ -140,26 +143,22 @@ export let Grid = () => {
       let value = event.key.toUpperCase()
       if (!/^[A-Z1-9]$/.test(value)) return
 
-      let correct = false
-      let cell = { r: 0, c: 0 }
+      let cell = selection
+      if (!selection) return
 
+      let correct = solution[cell.r]?.[cell.c] === value
       dispatch(updateCell({ value, correct, cell }))
     },
-    [dispatch]
+    [dispatch, gridState, selection, solution]
   )
 
-  useEffect(() => {
-    if (!ref.current) return
-
-    let onWheel = (event: WheelEvent) => {
+  let onWheel = useCallback(
+    (event: WheelEvent) => {
       zoom(ref.current?.getContext('2d')!, event.deltaY)
       render(ref.current!, gridState)
-    }
-
-    ref.current.addEventListener('wheel', onWheel)
-
-    return () => ref.current?.removeEventListener('wheel', onWheel)
-  }, [ref.current])
+    },
+    [gridState]
+  )
 
   useEffect(() => {
     window.addEventListener('keyup', onKeyUp)
@@ -185,5 +184,5 @@ export let Grid = () => {
     }, [])
   )
 
-  return <canvas ref={ref} onClick={onClick}></canvas>
+  return <canvas ref={ref} onClick={onClick} onWheel={onWheel}></canvas>
 }

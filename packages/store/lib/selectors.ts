@@ -15,10 +15,10 @@ export let zip = <T, U>(xs: T[], ys: U[]): [T, U][] => {
   return ret
 }
 
-export let getSolution = (state: State) => state.solution
-let getCells = (state: State) => state.grid.cells
-let getSelection = (state: State) => state.selection
 let getClues = (state: State) => state.clues
+let getCells = (state: State) => state.grid.cells
+export let getSolution = (state: State) => state.solution
+export let getSelection = (state: State) => state.selection
 export let getMode = (state: State) => state.mode
 
 type Solution = ReturnType<typeof getSolution>

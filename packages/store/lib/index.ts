@@ -58,6 +58,7 @@ export {
   getWordScope,
   getSolution,
   getSolved,
+  getSelection,
 } from './selectors'
 
 export default createStore
