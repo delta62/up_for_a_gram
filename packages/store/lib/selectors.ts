@@ -76,6 +76,7 @@ export enum RenderCellFlags {
   None = 0,
   Black = 1,
   Selected = 2,
+  SelectedWord = 4,
 }
 
 export interface RenderCell {
@@ -89,15 +90,25 @@ export type GridState = RenderCell[][]
 export let getGridState: Selector<GridState> = createSelector(
   getCells,
   getSelection,
-  (rows, selection) => {
+  getMode,
+  (rows, selection, mode) => {
     return rows.map((row, r) => {
       return row.map((cell, c): RenderCell => {
         let { value } = cell
         let flags = 0
         let num = cell.number || undefined
+        let isSelected = r === selection.r && c === selection.c
+        let selectedCellWord = rows[selection.r]?.[selection.c]?.parents?.[mode]
+        let thisCellWord = cell.parents?.[mode]
+        let isInSelectedWord =
+          selectedCellWord === thisCellWord && selectedCellWord !== undefined
 
-        if (r === selection.r && c === selection.c) {
+        if (isSelected) {
           flags |= RenderCellFlags.Selected
+        }
+
+        if (isInSelectedWord) {
+          flags |= RenderCellFlags.SelectedWord
         }
 
         if (cell.black) {

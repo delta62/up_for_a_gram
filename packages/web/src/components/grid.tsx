@@ -45,6 +45,8 @@ let render = (canvas: HTMLCanvasElement, state: GridState) => {
         ctx.fillStyle = '#000'
       } else if (cell.flags & RenderCellFlags.Selected) {
         ctx.fillStyle = '#dde'
+      } else if (cell.flags & RenderCellFlags.SelectedWord) {
+        ctx.fillStyle = '#eee'
       } else {
         ctx.fillStyle = '#fff'
       }
