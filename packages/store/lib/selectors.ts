@@ -1,5 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { CellRef } from 'api'
+import { Cell } from './grid'
 import { State } from './index'
 
 export type Selector<T> = (state: State) => T
@@ -16,35 +17,53 @@ export let zip = <T, U>(xs: T[], ys: U[]): [T, U][] => {
 }
 
 let getClues = (state: State) => state.clues
-let getCells = (state: State) => state.grid.cells
+export let getCells = (state: State) => state.grid.cells
 export let getSolution = (state: State) => state.solution
-export let getSelection = (state: State) => state.selection
+export let getSelection: Selector<Cell & CellRef> = createSelector(
+  (state: State) => state.selection,
+  getCells,
+  ({ r, c }, cells) => {
+    let cell = cells[r]?.[c]
+    let value = cell?.value ?? ''
+    let parents = cell?.parents
+    let state = cell?.state ?? 'default'
+    let black = cell?.black ?? false
+    let number = cell?.number ?? null
+
+    return { r, c, value, parents, state, black, number }
+  }
+)
+
 export let getMode = (state: State) => state.mode
 
 type Solution = ReturnType<typeof getSolution>
 type Cells = ReturnType<typeof getCells>
 
-let isSolved = (solution: Solution, cells: Cells) =>
-  zip(solution.flat(), cells.flat()).every(
-    ([expected, actual]) => actual.black || actual.value === expected
-  )
-
 export let getSolved: Selector<boolean> = createSelector(
   getSolution,
   getCells,
-  isSolved
+  (solution: Solution, cells: Cells) =>
+    zip(solution.flat(), cells.flat()).every(
+      ([expected, actual]) => actual.black || actual.value === expected
+    )
 )
 
-export let getClueSolved = (state: State, { r, c }: CellRef): boolean => {
-  let { mode, grid } = state
-  let cell = grid.cells[r]![c]!
-  let clueNum = cell.parents?.[mode]!
+export let getClueSolved: Selector<boolean> = createSelector(
+  getCells,
+  getMode,
+  getSelection,
+  (cells, mode, selection) => {
+    if (!selection) return false
+    let { r, c } = selection
+    let cell = cells[r]?.[c]
+    let clueNum = cell?.parents?.[mode]
 
-  return grid.cells
-    .flat()
-    .filter(cell => cell.parents?.[mode] === clueNum)
-    .every(cell => !!cell.value)
-}
+    return cells
+      .flat()
+      .filter(cell => cell.parents?.[mode] === clueNum)
+      .every(cell => !!cell.value)
+  }
+)
 
 export let getCellScope: Selector<[CellRef]> = createSelector(
   getSelection,

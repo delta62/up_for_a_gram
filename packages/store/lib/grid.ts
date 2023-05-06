@@ -2,7 +2,7 @@ import { createReducer } from '@reduxjs/toolkit'
 import { GridCell } from 'api'
 import { check, createGame, reveal, setCell, updateCell } from './actions'
 
-type CellState =
+export type CellState =
   | 'verified' // Correct and has been checked
   | 'revealed' // Revealed
   | 'correct' // Correct but has not been checked
